@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Category, Question } from './models/question';
 import { QuestionsService } from './services/questions.service';
+import { environment } from 'src/environments/environment';
 
 type UIcategory = { key: Category; label: string };
 
@@ -96,6 +97,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.started.set(false);
     this.seconds.set(0);
     if (this.timer) clearInterval(this.timer);
+  }
+
+  loginWithGoogle() {
+    window.location.href = environment.auth.googleStart;
   }
 
   selectAnswer(q: Question, i: number) {

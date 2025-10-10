@@ -2,15 +2,17 @@ import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Category, Question } from './models/question';
+import { AuthButtonComponent } from './auth-button.component';
 import { QuestionsService } from './services/questions.service';
 import { environment } from 'src/environments/environment';
+import { AuthService } from './services/auth.service';
 
 type UIcategory = { key: Category; label: string };
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AuthButtonComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -39,9 +41,12 @@ export class AppComponent implements OnInit, OnDestroy {
   readonly Math = Math;
   private readonly alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
-  constructor(private qService: QuestionsService) {}
+  constructor(private qService: QuestionsService, private auth: AuthService) {}
 
-  ngOnInit(): void { this.loadCategory(this.category()); }
+  ngOnInit(): void {
+    this.handleAuthCallback();
+    this.loadCategory(this.category());
+  }
   ngOnDestroy(): void { if (this.timer) clearInterval(this.timer); }
 
   total = computed(() => this.pool().length);
@@ -158,5 +163,13 @@ export class AppComponent implements OnInit, OnDestroy {
       [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
+  }
+
+  private handleAuthCallback() {
+    const m = window.location.hash.match(/token=([^&]+)/);
+    if (!m) return;
+    const token = decodeURIComponent(m[1]);
+    this.auth.setToken(token);
+    window.history.replaceState({}, '', '/');
   }
 }

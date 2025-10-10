@@ -2,8 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Question, Category } from '../models/question';
+import { environment } from 'src/environments/environment';
 
-const API_BASE = '/api';
+
+const API_BASE = environment.apiBase; // <-- em vez de '/api'
+
 
 @Injectable({ providedIn: 'root' })
 export class QuestionsService {

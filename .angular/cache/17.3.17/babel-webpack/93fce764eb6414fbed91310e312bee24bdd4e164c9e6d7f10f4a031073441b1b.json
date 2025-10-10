@@ -1,0 +1,1 @@
+{"ast":null,"code":"export const environment = {\n  production: true,\n  // atualize com a URL pública real da API quando necessário\n  apiBase: 'https://simulado-api-eight.vercel.app'\n};","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

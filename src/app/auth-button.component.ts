@@ -9,10 +9,10 @@ import { environment } from '../environments/environment';
   imports: [NgIf, AsyncPipe],
   template: `
     <ng-container *ngIf="auth.user$ | async; else loggedOut">
-      <button (click)="logout()">Sair / Logout</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="logout()">Sair / Logout</button>
     </ng-container>
     <ng-template #loggedOut>
-      <button (click)="login()">Entrar com Google</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="login()">Entrar com Google</button>
     </ng-template>
   `
 })

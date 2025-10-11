@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminCategoriesService } from '../services/admin-categories.service';
-import { Category } from '../models/category';
-
+import { Category } from '../models';
 
 @Component({
   standalone: true,

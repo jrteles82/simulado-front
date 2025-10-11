@@ -4,9 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminQuestionsService } from '../services/admin-questions.service';
 import { AdminCategoriesService } from '../services/admin-categories.service';
-import { Category } from '../models/category';
-import { Question } from '../models/question';
-
+import { Category, Question } from '../models';
 
 @Component({
   standalone: true,
@@ -30,9 +28,7 @@ import { Question } from '../models/question';
       <tr *ngFor="let q of rows">
         <td>{{q.stem | slice:0:80}}{{q.stem.length>80?'...':''}}</td>
         <td>{{nameOf(q.categoryId)}}</td>
-        <td>
-          <a [routerLink]="['/admin/questions', q.id]">Editar</a>
-        </td>
+        <td><a [routerLink]="['/admin/questions', q.id]">Editar</a></td>
       </tr>
     </table>
   `

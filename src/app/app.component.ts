@@ -1,34 +1,31 @@
 import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterOutlet } from '@angular/router';
 
 import { QuestionsService } from './services/questions.service';
-import { Category } from './models/category';
-import { Question } from './models/question';
-import { CategoriesService } from './services/category.service';
-
+import { CategoriesService } from './services/categories.service';
+import { Category } from './models/category.model';
+import { Question } from './models/question.model';
+import { AuthButtonComponent } from './auth-button.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterOutlet, AuthButtonComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Simulado FGV – Câmara de Porto Velho';
 
-  // categorias vindas da API
   categories = signal<Category[]>([]);
-  // categoria selecionada (id numérico) — undefined = todas
   categoryId = signal<number | undefined>(undefined);
 
-  // banco de questões, ordem aleatória de ids e índice atual
   pool = signal<Question[]>([]);
   order = signal<number[]>([]);
   idx = signal<number>(0);
 
-  // respostas e explicações por id numérico
   answers = signal<Record<number, number>>({});
   showExplain = signal<Record<number, boolean>>({});
   started = signal<boolean>(false);
@@ -47,11 +44,9 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // carrega categorias e já busca questões da primeira (ou todas se quiser)
     this.cService.list().subscribe({
       next: (cats) => {
         this.categories.set(cats);
-        // selecione a primeira categoria por padrão (ou deixe undefined para "todas")
         const first = cats[0]?.id;
         this.categoryId.set(first);
         this.loadCategoryById(first);
@@ -64,9 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    if (this.timer) clearInterval(this.timer);
-  }
+  ngOnDestroy(): void { if (this.timer) clearInterval(this.timer); }
 
   total = computed(() => this.pool().length);
 
@@ -94,7 +87,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.error.set(null);
     this.categoryId.set(catId);
 
-    // reset de estado
     this.pool.set([]);
     this.order.set([]);
     this.idx.set(0);
@@ -104,11 +96,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.seconds.set(0);
     if (this.timer) clearInterval(this.timer);
 
-    this.qService.list({
-      categoryId: catId,
-      take: 1000, // carregue um lote grande para simulado completo
-      skip: 0
-    }).subscribe({
+    this.qService.list({ categoryId: catId, take: 1000, skip: 0 }).subscribe({
       next: (items) => {
         this.pool.set(items);
         const ids = items.map(q => q.id);
@@ -178,13 +166,8 @@ export class AppComponent implements OnInit, OnDestroy {
     return c?.name ?? String(id);
   }
 
-  letter(idx: number): string {
-    return this.alphabet.charAt(idx);
-  }
-
-  isAnswered(id: number): boolean {
-    return this.answers()[id] != null;
-  }
+  letter(idx: number): string { return this.alphabet.charAt(idx); }
+  isAnswered(id: number): boolean { return this.answers()[id] != null; }
 
   private shuffle<T>(arr: T[]): T[] {
     const a = [...arr];
@@ -194,5 +177,4 @@ export class AppComponent implements OnInit, OnDestroy {
     }
     return a;
   }
-
 }

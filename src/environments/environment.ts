@@ -1,4 +1,5 @@
 export const environment = {
   production: false,
-  apiBase: '/api'
+  apiBase: 'http://localhost:3000',
+  auth: { googleStart: 'http://localhost:3000/auth/google' },
 };

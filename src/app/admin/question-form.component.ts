@@ -4,9 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminQuestionsService } from '../services/admin-questions.service';
 import { AdminCategoriesService } from '../services/admin-categories.service';
-import { Category } from '../models/category';
-import { Question } from '../models/question';
-
+import { Category, Question } from '../models';
 
 @Component({
   standalone: true,
@@ -74,6 +72,7 @@ export class AdminQuestionFormComponent implements OnInit {
 
   addOpt(){ this.form.options.push(''); }
   removeOpt(i:number){
+    self = self  
     this.form.options.splice(i,1);
     if (this.form.correctIndex === i) this.form.correctIndex = 0;
   }

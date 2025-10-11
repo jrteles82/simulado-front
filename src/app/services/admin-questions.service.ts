@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Question } from '../models/question';
-
+import { Question } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminQuestionsService {
@@ -16,7 +15,6 @@ export class AdminQuestionsService {
     });
     return this.http.get<Question[]>(this.base, { params: p });
   }
-
   get(id: number) { return this.http.get<Question>(`${this.base}/${id}`); }
   create(data: Omit<Question, 'id'>) { return this.http.post<Question>(this.base, data); }
   update(id: number, data: Partial<Question>) { return this.http.patch<Question>(`${this.base}/${id}`, data); }

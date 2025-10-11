@@ -8,14 +8,14 @@
       <label class="text-body-secondary small mb-0">Categoria:</label>
       <select
         class="form-select form-select-sm w-auto"
-        [ngModel]="category()"
-        (ngModelChange)="loadCategory($event)">
-        <option *ngFor="let c of categories" [value]="c.key">{{ c.label }}</option>
+        [ngModel]="categoryId()"
+        (ngModelChange)="loadCategoryById($event)">
+        <option [ngValue]="undefined">Todas</option>
+        <option *ngFor="let c of categories()" [ngValue]="c.id">{{ c.name }}</option>
       </select>
       <button type="button" class="btn btn-primary" (click)="start()" [disabled]="started()">Iniciar</button>
       <button type="button" class="btn btn-outline-secondary" (click)="restart()">Reiniciar</button>
       <button type="button" class="btn btn-outline-secondary" (click)="exportCSV()">Exportar CSV</button>
-      <app-auth-button></app-auth-button>
     </div>
   </div>
 
@@ -43,7 +43,7 @@
   <div *ngIf="current() as curr" class="card border-0 shadow-sm mb-4">
     <div class="card-body">
       <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-        <span class="badge text-bg-secondary text-uppercase">{{ humanCategory(curr.category) }}</span>
+        <span class="badge text-bg-secondary text-uppercase">{{ nameOfCategoryId(curr.categoryId) }}</span>
         <span class="text-body-secondary small">Questão {{ idx()+1 }} de {{ total() }}</span>
       </div>
 

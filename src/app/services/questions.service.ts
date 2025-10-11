@@ -1,40 +1,29 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import { Question, Category } from '../models/question';
-import { environment } from 'src/environments/environment';
-
-
-const API_BASE = environment.apiBase; // <-- em vez de '/api'
+import { environment } from '../../environments/environment';
+import { Question } from '../models/question';
 
 
 @Injectable({ providedIn: 'root' })
 export class QuestionsService {
+  private base = `${environment.apiBase}/questions`;
   constructor(private http: HttpClient) {}
 
-  list(params: { category?: Category; take?: number; skip?: number; search?: string }): Observable<Question[]> {
-    let httpParams = new HttpParams();
-    if (params.category) httpParams = httpParams.set('category', params.category);
-    if (params.take != null) httpParams = httpParams.set('take', params.take);
-    if (params.skip != null) httpParams = httpParams.set('skip', params.skip);
-    if (params.search) httpParams = httpParams.set('search', params.search);
-    return this.http.get<Question[]>(`${API_BASE}/questions`, { params: httpParams });
+  list(opts: { categoryId?: number; search?: string; take?: number; skip?: number } = {}) {
+    let params = new HttpParams();
+    if (opts.categoryId != null) params = params.set('categoryId', String(opts.categoryId));
+    if (opts.search) params = params.set('search', opts.search);
+    if (opts.take != null) params = params.set('take', String(opts.take));
+    if (opts.skip != null) params = params.set('skip', String(opts.skip));
+    return this.http.get<Question[]>(this.base, { params });
   }
 
-  count(params: { category?: Category; search?: string }): Observable<number> {
-    let httpParams = new HttpParams();
-    if (params.category) httpParams = httpParams.set('category', params.category);
-    if (params.search) httpParams = httpParams.set('search', params.search);
-    return this.http.get<number>(`${API_BASE}/questions/count`, { params: httpParams });
+  count(opts: { categoryId?: number; search?: string } = {}) {
+    let params = new HttpParams();
+    if (opts.categoryId != null) params = params.set('categoryId', String(opts.categoryId));
+    if (opts.search) params = params.set('search', opts.search);
+    return this.http.get<number>(`${this.base}/count`, { params });
   }
 
-  getById(id: string): Observable<Question> {
-    return this.http.get<Question>(`${API_BASE}/questions/${id}`);
-  }
-
-  listAllByCategory(category?: Category): Observable<Question[]> {
-    return this.list({ category, take: 1000, skip: 0 }).pipe(
-      map(items => items.sort((a, b) => a.id.localeCompare(b.id)))
-    );
-  }
+  get(id: number) { return this.http.get<Question>(`${this.base}/${id}`); }
 }

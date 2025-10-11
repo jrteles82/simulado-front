@@ -1,36 +1,36 @@
 import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Category, Question } from './models/question';
-import { AuthButtonComponent } from './auth-button.component';
-import { QuestionsService } from './services/questions.service';
-import { environment } from 'src/environments/environment';
-import { AuthService } from './services/auth.service';
 
-type UIcategory = { key: Category; label: string };
+import { QuestionsService } from './services/questions.service';
+import { Category } from './models/category';
+import { Question } from './models/question';
+import { CategoriesService } from './services/category.service';
+
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, AuthButtonComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Simulado FGV – Câmara de Porto Velho';
-  categories: UIcategory[] = [
-    { key: 'PORTUGUES', label: 'Português' },
-    { key: 'DIREITO_CONSTITUCIONAL', label: 'Direito Constitucional' },
-    { key: 'MISTO', label: 'Misto' }
-  ];
 
-  category = signal<Category>('PORTUGUES');
+  // categorias vindas da API
+  categories = signal<Category[]>([]);
+  // categoria selecionada (id numérico) — undefined = todas
+  categoryId = signal<number | undefined>(undefined);
+
+  // banco de questões, ordem aleatória de ids e índice atual
   pool = signal<Question[]>([]);
-  order = signal<string[]>([]);
+  order = signal<number[]>([]);
   idx = signal<number>(0);
 
-  answers = signal<Record<string, number>>({});
-  showExplain = signal<Record<string, boolean>>({});
+  // respostas e explicações por id numérico
+  answers = signal<Record<number, number>>({});
+  showExplain = signal<Record<number, boolean>>({});
   started = signal<boolean>(false);
 
   seconds = signal<number>(0);
@@ -41,29 +41,60 @@ export class AppComponent implements OnInit, OnDestroy {
   readonly Math = Math;
   private readonly alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
-  constructor(private qService: QuestionsService, private auth: AuthService) {}
+  constructor(
+    private qService: QuestionsService,
+    private cService: CategoriesService
+  ) {}
 
   ngOnInit(): void {
-    this.handleAuthCallback();
-    this.loadCategory(this.category());
+    // carrega categorias e já busca questões da primeira (ou todas se quiser)
+    this.cService.list().subscribe({
+      next: (cats) => {
+        this.categories.set(cats);
+        // selecione a primeira categoria por padrão (ou deixe undefined para "todas")
+        const first = cats[0]?.id;
+        this.categoryId.set(first);
+        this.loadCategoryById(first);
+      },
+      error: (err) => {
+        console.error(err);
+        this.error.set('Falha ao carregar categorias. Verifique a API.');
+        this.loading.set(false);
+      }
+    });
   }
-  ngOnDestroy(): void { if (this.timer) clearInterval(this.timer); }
+
+  ngOnDestroy(): void {
+    if (this.timer) clearInterval(this.timer);
+  }
 
   total = computed(() => this.pool().length);
-  current = computed(() => this.pool().find(q => q.id === this.order()[this.idx()]));
+
+  current = computed(() => {
+    const id = this.order()[this.idx()];
+    return this.pool().find(q => q.id === id);
+  });
+
   answeredCount = computed(() => Object.keys(this.answers()).length);
+
   correctCount = computed(() =>
     this.pool().filter(q => this.answers()[q.id] === q.correctIndex).length
   );
-  progressPct = computed(() => this.total() ? Math.round((this.answeredCount() / this.total()) * 100) : 0);
+
+  progressPct = computed(() =>
+    this.total() ? Math.round((this.answeredCount() / this.total()) * 100) : 0
+  );
+
   mistakes = computed(() =>
     this.pool().filter(q => this.answers()[q.id] !== q.correctIndex)
   );
 
-  loadCategory(cat: Category) {
+  loadCategoryById(catId?: number) {
     this.loading.set(true);
     this.error.set(null);
-    this.category.set(cat);
+    this.categoryId.set(catId);
+
+    // reset de estado
     this.pool.set([]);
     this.order.set([]);
     this.idx.set(0);
@@ -73,7 +104,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.seconds.set(0);
     if (this.timer) clearInterval(this.timer);
 
-    this.qService.listAllByCategory(cat).subscribe({
+    this.qService.list({
+      categoryId: catId,
+      take: 1000, // carregue um lote grande para simulado completo
+      skip: 0
+    }).subscribe({
       next: (items) => {
         this.pool.set(items);
         const ids = items.map(q => q.id);
@@ -104,10 +139,6 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.timer) clearInterval(this.timer);
   }
 
-  loginWithGoogle() {
-    window.location.href = environment.auth.googleStart;
-  }
-
   selectAnswer(q: Question, i: number) {
     if (!this.started()) return;
     if (q.id in this.answers()) return;
@@ -121,38 +152,37 @@ export class AppComponent implements OnInit, OnDestroy {
   exportCSV() {
     const rows = this.pool().map(q => ({
       id: q.id,
-      categoria: q.category,
+      categoria: this.nameOfCategoryId(q.categoryId),
       acerto: this.answers()[q.id] === q.correctIndex ? 1 : 0,
       marcado: this.answers()[q.id] != null ? q.options[this.answers()[q.id]] : '',
       correta: q.options[q.correctIndex],
     }));
     const header = Object.keys(rows[0] || { id:'', categoria:'', acerto:'', marcado:'', correta:'' });
-    const csv = [header.join(';'),
+    const csv = [
+      header.join(';'),
       ...rows.map(r => header.map(h => String((r as any)[h]).replace(/;/g, ',')).join(';'))
     ].join('\n');
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `resultado_${this.category()}.csv`;
+    const catName = this.nameOfCategoryId(this.categoryId());
+    a.download = `resultado_${catName || 'todas'}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
   }
 
-  humanCategory(cat: Category): string {
-    const m: Record<Category, string> = {
-      'PORTUGUES': 'Português',
-      'DIREITO_CONSTITUCIONAL': 'Direito Constitucional',
-      'MISTO': 'Misto',
-    };
-    return m[cat];
+  nameOfCategoryId(id: number | undefined): string {
+    if (!id) return 'Todas';
+    const c = this.categories().find(x => x.id === id);
+    return c?.name ?? String(id);
   }
 
   letter(idx: number): string {
     return this.alphabet.charAt(idx);
   }
 
-  isAnswered(id: string): boolean {
+  isAnswered(id: number): boolean {
     return this.answers()[id] != null;
   }
 
@@ -165,11 +195,4 @@ export class AppComponent implements OnInit, OnDestroy {
     return a;
   }
 
-  private handleAuthCallback() {
-    const m = window.location.hash.match(/token=([^&]+)/);
-    if (!m) return;
-    const token = decodeURIComponent(m[1]);
-    this.auth.setToken(token);
-    window.history.replaceState({}, '', '/');
-  }
 }

@@ -8,20 +8,29 @@ import { environment } from '../environments/environment';
   selector: 'app-auth-button',
   imports: [NgIf, AsyncPipe],
   template: `
-    <ng-container *ngIf="auth.user$ | async as user; else out">
-      <button class="btn btn-outline-dark btn-sm" (click)="logout()">
+    <ng-container *ngIf="auth.user$ | async as user; else loggedOut">
+      <div class="d-flex align-items-center gap-2">
         <img *ngIf="user.picture" [src]="user.picture" alt="avatar"
-             width="20" height="20" style="border-radius:50%;margin-right:.4rem">
-        {{ user.name || user.email }} (sair)
-      </button>
+             width="24" height="24" style="border-radius:50%">
+        <span class="small">{{ user.name || user.email }}</span>
+        <button class="btn btn-outline-dark btn-sm" (click)="logout()">Sair</button>
+      </div>
     </ng-container>
-    <ng-template #out>
+
+    <ng-template #loggedOut>
       <button class="btn btn-outline-primary btn-sm" (click)="login()">Entrar com Google</button>
     </ng-template>
   `
 })
 export class AuthButtonComponent {
   auth = inject(AuthService);
-  login()  { window.location.href = environment.auth.googleStart; }
+
+  login() {
+    let url = environment.auth.googleStart;
+    // garante barra inicial se vier relativo
+    if (!/^https?:\/\//i.test(url) && !url.startsWith('/')) url = '/' + url;
+    window.location.href = url;
+  }
+
   logout() { this.auth.logout(); }
 }

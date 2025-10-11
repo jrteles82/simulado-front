@@ -7,6 +7,7 @@ import { QuestionsService } from './services/questions.service';
 import { CategoriesService } from './services/categories.service';
 import { Category } from './models/category.model';
 import { Question } from './models/question.model';
+import { AuthService } from './services/auth.service';
 import { AuthButtonComponent } from './auth-button.component';
 
 @Component({
@@ -19,13 +20,17 @@ import { AuthButtonComponent } from './auth-button.component';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Simulado FGV – Câmara de Porto Velho';
 
+  // categorias vindas da API
   categories = signal<Category[]>([]);
+  // categoria selecionada (id numérico) — undefined = todas
   categoryId = signal<number | undefined>(undefined);
 
+  // banco de questões, ordem aleatória de ids e índice atual
   pool = signal<Question[]>([]);
   order = signal<number[]>([]);
   idx = signal<number>(0);
 
+  // respostas e explicações por id numérico
   answers = signal<Record<number, number>>({});
   showExplain = signal<Record<number, boolean>>({});
   started = signal<boolean>(false);
@@ -40,10 +45,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private qService: QuestionsService,
-    private cService: CategoriesService
+    private cService: CategoriesService,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
+    // captura token do hash ao voltar do Google e salva no AuthService
+    this.handleAuthCallback();
+
+    // carrega categorias e já busca questões da primeira (ou todas se quiser)
     this.cService.list().subscribe({
       next: (cats) => {
         this.categories.set(cats);
@@ -59,7 +69,9 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void { if (this.timer) clearInterval(this.timer); }
+  ngOnDestroy(): void {
+    if (this.timer) clearInterval(this.timer);
+  }
 
   total = computed(() => this.pool().length);
 
@@ -87,6 +99,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.error.set(null);
     this.categoryId.set(catId);
 
+    // reset de estado
     this.pool.set([]);
     this.order.set([]);
     this.idx.set(0);
@@ -166,8 +179,13 @@ export class AppComponent implements OnInit, OnDestroy {
     return c?.name ?? String(id);
   }
 
-  letter(idx: number): string { return this.alphabet.charAt(idx); }
-  isAnswered(id: number): boolean { return this.answers()[id] != null; }
+  letter(idx: number): string {
+    return this.alphabet.charAt(idx);
+  }
+
+  isAnswered(id: number): boolean {
+    return this.answers()[id] != null;
+  }
 
   private shuffle<T>(arr: T[]): T[] {
     const a = [...arr];
@@ -176,5 +194,14 @@ export class AppComponent implements OnInit, OnDestroy {
       [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
+  }
+
+  private handleAuthCallback() {
+    const m = window.location.hash.match(/token=([^&]+)/);
+    if (!m) return;
+    const token = decodeURIComponent(m[1]);
+    this.auth.setToken(token);
+    // limpa o hash da URL
+    window.history.replaceState({}, '', '/');
   }
 }

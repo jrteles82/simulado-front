@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Role } from '../models';
 
 const TOKEN_KEY = 'auth_token';
 
@@ -9,7 +8,7 @@ export interface AuthUser {
   email: string;
   name?: string;
   picture?: string;
-  role?: Role;
+  role?: 'USER' | 'ADMIN';
   exp?: number;
 }
 
@@ -43,6 +42,8 @@ export class AuthService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (payload?.exp && payload.exp * 1000 < Date.now()) { this.logout(); return; }
       this._user$.next(payload);
-    } catch { this.logout(); }
+    } catch {
+      this.logout();
+    }
   }
 }

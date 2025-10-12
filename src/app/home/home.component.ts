@@ -130,20 +130,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   restart() {
-    if (!this.auth.current) {
-      this.loginModalOpen.set(true);
-      return;
-    }
-    this.loginModalOpen.set(false);
-
+    this.started.set(false);
     this.order.set(this.shuffle(this.pool().map((q) => q.id)));
     this.idx.set(0);
     this.answers.set({});
     this.showExplain.set({});
-    this.started.set(false);
     this.seconds.set(0);
-    if (this.timer) clearInterval(this.timer);
-    this.scrollToAnsweredMetrics();
+    this.timer && clearInterval(this.timer);
+
+    // Roda a mesma lógica do start após resetar
+    this.start();
   }
 
   selectAnswer(q: Question, i: number) {

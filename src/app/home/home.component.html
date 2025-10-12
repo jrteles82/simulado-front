@@ -69,13 +69,14 @@
                 type="button"
                 class="btn btn-primary btn-lg"
                 (click)="start()"
-                [disabled]="started()">
+                *ngIf="!started()">
                 <i class="fas fa-play mr-2"></i> Iniciar simulado
               </button>
               <button
                 type="button"
                 class="btn btn-outline-light btn-lg text-primary border-primary"
-                (click)="restart()">
+                (click)="restart()"
+                *ngIf="started()">
                 <i class="fas fa-sync-alt mr-2"></i> Reiniciar
               </button>
             </div>
@@ -97,10 +98,10 @@
   <div class="home-hero-wave"></div>
 </div>
 
-<section class="home-stats py-4" id="metricas">
+<section class="home-stats py-4">
   <div class="container">
     <div class="row text-center">
-      <div class="col-sm-4 mb-3 mb-sm-0">
+      <div class="col-sm-4 mb-3 mb-sm-0" id="metricas">
         <div class="metric-card shadow-sm" id="answered-metric">
           <h3 class="metric-value">{{ answeredCount() }}/{{ total() }}</h3>
           <p class="metric-label">Questões respondidas</p>

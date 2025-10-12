@@ -31,6 +31,10 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     this.navSub?.unsubscribe();
   }
 
+  handleLogout() {
+    this.router.navigateByUrl('/');
+  }
+
   private updateMenuState() {
     const url = this.router.url;
     const open = url.startsWith('/admin/questions') || url.startsWith('/admin/categories');

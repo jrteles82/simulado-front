@@ -16,7 +16,7 @@
       <button type="button" class="btn btn-primary" (click)="start()" [disabled]="started()">Iniciar</button>
       <button type="button" class="btn btn-outline-secondary" (click)="restart()">Reiniciar</button>
       <!-- <button type="button" class="btn btn-outline-secondary" (click)="exportCSV()">Exportar CSV</button> -->
-      <app-auth-button></app-auth-button>
+      <app-auth-button (loggedOut)="handleLogout()"></app-auth-button>
     </div>
   </div>
 
@@ -132,7 +132,7 @@
         </div>
         <div class="modal-body">
           <p class="mb-3">Para iniciar o simulado é preciso entrar com sua conta Google.</p>
-          <app-auth-button></app-auth-button>
+          <app-auth-button (loggedOut)="handleLogout()"></app-auth-button>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeLoginPrompt()">Fechar</button>

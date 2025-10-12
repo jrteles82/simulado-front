@@ -10,7 +10,7 @@
 
     <ul class="navbar-nav ml-auto">
       <li class="nav-item d-flex align-items-center">
-        <app-auth-button></app-auth-button>
+        <app-auth-button (loggedOut)="handleLogout()"></app-auth-button>
       </li>
     </ul>
   </nav>

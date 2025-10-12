@@ -201,6 +201,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loginModalOpen.set(false);
   }
 
+  handleLogout() {
+    this.loginModalOpen.set(false);
+    const currentCategory = this.categoryId();
+    this.loadCategoryById(currentCategory);
+  }
+
   private shuffle<T>(arr: T[]): T[] {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {

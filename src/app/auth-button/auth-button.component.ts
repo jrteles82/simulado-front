@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../environments/environment';
@@ -11,6 +11,7 @@ import { environment } from '../../environments/environment';
 })
 export class AuthButtonComponent {
   auth = inject(AuthService);
+  @Output() loggedOut = new EventEmitter<void>();
 
   login() {
     let url = environment.auth.googleStart;
@@ -19,5 +20,8 @@ export class AuthButtonComponent {
     window.location.href = url;
   }
 
-  logout() { this.auth.logout(); }
+  logout() {
+    this.auth.logout();
+    this.loggedOut.emit();
+  }
 }

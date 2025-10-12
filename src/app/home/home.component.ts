@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, computed, signal, inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { QuestionsService } from '../services/questions.service';
@@ -17,6 +17,7 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['../app-root/app.component.css'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private readonly document = inject(DOCUMENT);
   title = 'Simulado FGV – Câmara de Porto Velho';
 
   categories = signal<Category[]>([]);
@@ -125,6 +126,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.started()) return;
     this.started.set(true);
     this.timer = setInterval(() => this.seconds.update((s) => s + 1), 1000);
+    this.scrollToAnsweredMetrics();
   }
 
   restart() {
@@ -141,6 +143,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.started.set(false);
     this.seconds.set(0);
     if (this.timer) clearInterval(this.timer);
+    this.scrollToAnsweredMetrics();
   }
 
   selectAnswer(q: Question, i: number) {
@@ -205,6 +208,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loginModalOpen.set(false);
     const currentCategory = this.categoryId();
     this.loadCategoryById(currentCategory);
+  }
+
+  private scrollToAnsweredMetrics() {
+    const el = this.document?.getElementById('metricas');
+    // const el = this.document?.getElementById('answered-metric');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   private shuffle<T>(arr: T[]): T[] {

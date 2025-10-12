@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { AsyncPipe, NgIf } from '@angular/common';
-import { AuthService } from './services/auth.service';
-import { environment } from '../environments/environment';
+import { AuthService } from '../services/auth.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   standalone: true,

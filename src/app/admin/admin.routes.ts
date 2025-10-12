@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
 import { canActivateAdmin } from '../guards/admin.guard';
 
-import { AdminLayoutComponent } from './admin-layout.component';
-import { AdminCategoriesComponent } from './categories.component';
-import { AdminCategoryFormComponent } from './category-form.component';
-import { AdminQuestionsComponent } from './questions.component';
-import { AdminQuestionFormComponent } from './question-form.component';
-import { AdminUsersComponent } from './users.component';
+import { AdminLayoutComponent } from './admin-layout/admin-layout.component';
+import { AdminCategoriesComponent } from './categories/categories.component';
+import { AdminCategoryFormComponent } from './category-form/category-form.component';
+import { AdminQuestionsComponent } from './questions/questions.component';
+import { AdminQuestionFormComponent } from './question-form/question-form.component';
+import { AdminUsersComponent } from './users/users.component';
 
 export const adminRoutes: Routes = [
   {

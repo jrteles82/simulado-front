@@ -2,18 +2,18 @@ import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { QuestionsService } from './services/questions.service';
-import { CategoriesService } from './services/categories.service';
-import { Category } from './models/category.model';
-import { Question } from './models/question.model';
-import { AuthButtonComponent } from './auth-button.component';
+import { QuestionsService } from '../services/questions.service';
+import { CategoriesService } from '../services/categories.service';
+import { Category } from '../models/category.model';
+import { Question } from '../models/question.model';
+import { AuthButtonComponent } from '../auth-button/auth-button.component';
 
 @Component({
   standalone: true,
   selector: 'app-home',
   imports: [CommonModule, FormsModule, AuthButtonComponent],
   templateUrl: './home.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['../app-root/app.component.css'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   title = 'Simulado FGV – Câmara de Porto Velho';

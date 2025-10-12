@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthButtonComponent } from '../auth-button.component';
+import { AuthButtonComponent } from '../../auth-button/auth-button.component';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 

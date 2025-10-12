@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminUsersService, AdminUser } from '../services/admin-users.service';
+import { AdminUsersService, AdminUser } from '../../services/admin-users.service';
 
 @Component({
   standalone: true,

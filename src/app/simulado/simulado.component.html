@@ -1,0 +1,280 @@
+<div class="home-hero text-white">
+  <header class="home-navbar">
+    <div class="container d-flex align-items-center justify-content-between py-3">
+      <div class="d-flex align-items-center">
+        <div class="home-logo mr-3">
+          <span class="home-logo-icon">SF</span>
+        </div>
+        <div>
+          <h1 class="h5 mb-0 font-weight-semibold">Simulado FGV</h1>
+          <small class="text-white-50">Câmara Municipal de Porto Velho</small>
+        </div>
+      </div>
+      <nav class="home-nav-links d-none d-md-flex align-items-center">
+        <a class="nav-link active" href="#painel">Painel</a>
+        <a class="nav-link" href="#metricas">Indicadores</a>
+        <a class="nav-link" href="#relatorios">Relatórios</a>
+      </nav>
+      <div class="d-flex align-items-center">
+        <div class="d-none d-md-inline-block mr-3 text-white-50 small">
+          <i class="fas fa-shield-alt mr-1"></i> Área do candidato
+        </div>
+        <app-auth-button (loggedOut)="handleLogout()"></app-auth-button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container py-4 py-lg-5">
+    <div class="row align-items-center gy-4">
+      <div class="col-lg-7" id="painel">
+        <div class="d-inline-flex align-items-center home-hero-pill mb-3">
+          <i class="fas fa-graduation-cap mr-2"></i>
+          <span class="text-uppercase">FGV • Câmara Municipal</span>
+        </div>
+        <h4 class="display-5 font-weight-semibold mt-2 mb-2">{{ title }}</h4>
+        <p class="lead mb-3 text-white-75">
+          Simule provas, acompanhe seu desempenho em tempo real e foque nos conteúdos que ainda precisa reforçar.
+        </p>
+        <div class="home-hero-badges d-flex flex-wrap gap-2">
+          <div class="hero-badge">
+            <i class="fas fa-clock"></i>
+            <span>Tempo real</span>
+          </div>
+          <div class="hero-badge">
+            <i class="fas fa-layer-group"></i>
+            <span>Categorias personalizadas</span>
+          </div>
+          <div class="hero-badge">
+            <i class="fas fa-chart-line"></i>
+            <span>Relatórios inteligentes</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5 col-xl-4 ml-auto">
+        <div class="card shadow-lg border-0 home-cta-card">
+          <div class="card-body p-4">
+            <h2 class="h5 font-weight-semibold mb-3">Monte seu simulado</h2>
+            <div class="form-group mb-3">
+              <label class="text-muted small font-weight-semibold text-uppercase">Categoria</label>
+              <select
+                class="form-control form-control-lg"
+                [ngModel]="categoryId()"
+                (ngModelChange)="loadCategoryById($event)">
+                <option [ngValue]="undefined">Todas as categorias</option>
+                <option *ngFor="let c of categories()" [ngValue]="c.id">{{ c.name }}</option>
+              </select>
+            </div>
+            <div class="d-grid gap-2">
+              <button
+                type="button"
+                class="btn btn-primary btn-lg"
+                (click)="start()"
+                *ngIf="!started()">
+                <i class="fas fa-play mr-2"></i> Iniciar simulado
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-light btn-lg text-primary border-primary"
+                (click)="restart()"
+                *ngIf="started()">
+                <i class="fas fa-sync-alt mr-2"></i> Reiniciar
+              </button>
+            </div>
+            <!-- <hr class="my-4"> -->
+            <!-- <div class="home-cta-footer d-flex align-items-center justify-content-between flex-wrap">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-user-circle text-primary mr-2"></i>
+                <small class="text-muted">Entrar ou trocar de usuário</small>
+              </div>
+              <div class="mt-2 mt-sm-0">
+                <app-auth-button (loggedOut)="handleLogout()"></app-auth-button>
+              </div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="home-hero-wave"></div>
+</div>
+
+<section class="home-stats py-4">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-sm-4 mb-3 mb-sm-0" id="metricas">
+        <div class="metric-card shadow-sm" id="answered-metric">
+          <h3 class="metric-value">{{ answeredCount() }}/{{ total() }}</h3>
+          <p class="metric-label">Questões respondidas</p>
+        </div>
+      </div>
+      <div class="col-sm-4 mb-3 mb-sm-0">
+        <div class="metric-card shadow-sm">
+          <h3 class="metric-value text-success">{{ correctCount() }}</h3>
+          <p class="metric-label">Acertos</p>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="metric-card shadow-sm">
+          <h3 class="metric-value">{{ Math.floor(seconds()/60) }}m {{ seconds()%60 }}s</h3>
+          <p class="metric-label">Tempo decorrido</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container py-4">
+  <div class="card border-0 shadow-sm mb-4" id="painel">
+    <div class="card-body">
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-3">
+        <div>
+          <h2 class="h5 mb-1">Painel do simulado</h2>
+          <p class="text-muted small mb-0">Acompanhe o avanço e navegue pelas questões.</p>
+        </div>
+        <div class="progress progress-slim mt-3 mt-md-0">
+          <div class="progress-bar" [style.width.%]="progressPct()"></div>
+        </div>
+      </div>
+
+      <div class="row g-3 text-center text-md-left">
+        <div class="col-6 col-md-3">
+          <div class="summary-pill">
+            <span class="label">Questões</span>
+            <strong>{{ total() }}</strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="summary-pill text-success">
+            <span class="label">Acertos</span>
+            <strong>{{ correctCount() }}</strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="summary-pill text-primary">
+            <span class="label">Progresso</span>
+            <strong>{{ progressPct() }}%</strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="summary-pill text-warning">
+            <span class="label">Tempo</span>
+            <strong>{{ Math.floor(seconds()/60) }}m {{ seconds()%60 }}s</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="alert alert-info border-0 shadow-sm mb-4" role="status">
+    <i class="fas fa-spinner fa-spin mr-2"></i> Carregando questões…
+  </div>
+  <div *ngIf="error()" class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+    <i class="fas fa-exclamation-triangle mr-2"></i> {{ error() }}
+  </div>
+
+  <div *ngIf="current() as curr" class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <span class="badge badge-soft-primary text-uppercase">{{ nameOfCategoryId(curr.categoryId) }}</span>
+        <span class="text-muted small">
+          <i class="fas fa-question-circle mr-1"></i> Questão {{ idx()+1 }} de {{ total() }}
+        </span>
+      </div>
+
+      <h3 class="h5 font-weight-semibold mb-3">{{ idx()+1 }}. {{ curr.stem }}</h3>
+
+      <div class="vstack gap-2">
+        <button
+          type="button"
+          class="option-btn btn btn-outline-light text-left"
+          *ngFor="let opt of curr.options; let i = index"
+          [ngClass]="{
+            correct: showExplain()[curr.id] && curr.correctIndex === i,
+            wrong: showExplain()[curr.id] && answers()[curr.id] === i && curr.correctIndex !== i
+          }"
+          [disabled]="!started() || isAnswered(curr.id)"
+          (click)="selectAnswer(curr, i)">
+          <span class="option-index badge badge-light text-monospace mr-2">{{ letter(i) }})</span>
+          {{ opt }}
+        </button>
+      </div>
+
+      <div *ngIf="showExplain()[curr.id]" class="explain-box mt-3 small">
+        <strong>Comentário:</strong> {{ curr.explanation }}
+      </div>
+
+      <div class="row g-2 align-items-center mt-4">
+        <div class="col-12 col-md-4 d-grid">
+          <button type="button" class="btn btn-outline-secondary" (click)="prev()" [disabled]="idx()===0">
+            <i class="fas fa-arrow-left mr-1"></i> Anterior
+          </button>
+        </div>
+        <div class="col-12 col-md-4 text-md-center">
+          <span class="text-body-secondary small fw-semibold">{{ idx()+1 }} / {{ total() }}</span>
+        </div>
+        <div class="col-12 col-md-4 d-grid">
+          <button type="button" class="btn btn-primary" (click)="next()" [disabled]="idx()===total()-1">
+            Próxima <i class="fas fa-arrow-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading() && !error() && total()===0" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+    Nenhuma questão encontrada para esta categoria.
+  </div>
+
+  <div *ngIf="answeredCount()===total() && total()>0" class="card border-0 shadow-sm mb-4" id="relatorios">
+    <div class="card-body">
+      <h2 class="fs-4 fw-semibold">Relatório Final</h2>
+      <p class="text-body-secondary small mb-1">
+        Nota: {{ correctCount() }}/{{ total() }} ({{ (correctCount()/total())*100 | number:'1.0-0' }}%)
+      </p>
+      <p class="text-body-secondary small mb-3">
+        Aprovado? {{ (correctCount()/total())*100 >= 70 ? 'Sim' : 'Não' }}
+      </p>
+
+      <div>
+        <h3 class="fs-6 fw-semibold mb-3">Erros comentados</h3>
+        <ul class="list-group list-group-flush">
+          <li *ngFor="let q of mistakes()" class="list-group-item">
+            <div class="fw-semibold">{{ q.id }} – {{ q.stem }}</div>
+            <div class="text-body-secondary small">
+              Marcada: {{ answers()[q.id] != null ? q.options[answers()[q.id]] : '(em branco)' }}
+              • Correta: {{ q.options[q.correctIndex] }}
+            </div>
+            <div class="text-body-secondary small">Comentário: {{ q.explanation }}</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <p class="text-center text-body-secondary footer-note mt-4">
+    Frontend Angular Standalone • Consome API em <code class="text-secondary">/api</code> (proxy para http://localhost:3000)
+  </p>
+</section>
+
+<ng-container *ngIf="loginModalOpen()">
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title mb-0">Login necessário</h5>
+          <button type="button" class="close" aria-label="Close" (click)="closeLoginPrompt()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3">Para iniciar o simulado é preciso entrar com sua conta Google.</p>
+          <app-auth-button (loggedOut)="handleLogout()"></app-auth-button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeLoginPrompt()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

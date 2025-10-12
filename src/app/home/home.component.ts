@@ -166,6 +166,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.loginModalOpen.set(true);
       return;
     }
+    const currentQuestion = this.current();
+    if (!currentQuestion) return;
+    if (!(currentQuestion.id in this.answers())) return;
     if (this.idx() < this.total() - 1) this.idx.update((v) => v + 1);
   }
 

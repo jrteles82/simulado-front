@@ -7,6 +7,7 @@ import { CategoriesService } from '../services/categories.service';
 import { Category } from '../models/category.model';
 import { Question } from '../models/question.model';
 import { AuthButtonComponent } from '../auth-button/auth-button.component';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   standalone: true,
@@ -36,10 +37,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   readonly Math = Math;
   private readonly alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  loginModalOpen = signal<boolean>(false);
 
   constructor(
     private qService: QuestionsService,
     private cService: CategoriesService,
+    private auth: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -113,12 +116,24 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   start() {
+    if (!this.auth.current) {
+      this.loginModalOpen.set(true);
+      return;
+    }
+    this.loginModalOpen.set(false);
+
     if (this.started()) return;
     this.started.set(true);
     this.timer = setInterval(() => this.seconds.update((s) => s + 1), 1000);
   }
 
   restart() {
+    if (!this.auth.current) {
+      this.loginModalOpen.set(true);
+      return;
+    }
+    this.loginModalOpen.set(false);
+
     this.order.set(this.shuffle(this.pool().map((q) => q.id)));
     this.idx.set(0);
     this.answers.set({});
@@ -180,6 +195,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   isAnswered(id: number): boolean {
     return this.answers()[id] != null;
+  }
+
+  closeLoginPrompt() {
+    this.loginModalOpen.set(false);
   }
 
   private shuffle<T>(arr: T[]): T[] {

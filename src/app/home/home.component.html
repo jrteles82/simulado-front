@@ -1,5 +1,5 @@
 <div class="container app-shell py-4">
-  <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+  <div class="d-flex flex-column align-items-lg-center justify-content-between gap-3 mb-4">
     <div>
       <h1 class="fs-2 fw-semibold mb-1">{{ title }}</h1>
       <p class="text-body-secondary small mb-0">Selecione a categoria e acompanhe seu desempenho em tempo real.</p>
@@ -7,7 +7,7 @@
     <div class="d-flex flex-wrap align-items-center gap-2">
       <label class="text-body-secondary small mb-0">Categoria:</label>
       <select
-        class="form-select form-select-sm w-auto"
+        class="form-select form-select-md w-auto"
         [ngModel]="categoryId()"
         (ngModelChange)="loadCategoryById($event)">
         <option [ngValue]="undefined">Todas</option>
@@ -15,7 +15,7 @@
       </select>
       <button type="button" class="btn btn-primary" (click)="start()" [disabled]="started()">Iniciar</button>
       <button type="button" class="btn btn-outline-secondary" (click)="restart()">Reiniciar</button>
-      <button type="button" class="btn btn-outline-secondary" (click)="exportCSV()">Exportar CSV</button>
+      <!-- <button type="button" class="btn btn-outline-secondary" (click)="exportCSV()">Exportar CSV</button> -->
       <app-auth-button></app-auth-button>
     </div>
   </div>
@@ -118,3 +118,26 @@
     Frontend Angular Standalone • Consome API em <code class="text-secondary">/api</code> (proxy para http://localhost:3000)
   </p>
 </div>
+
+<ng-container *ngIf="loginModalOpen()">
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title mb-0">Login necessário</h5>
+          <button type="button" class="close" aria-label="Close" (click)="closeLoginPrompt()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3">Para iniciar o simulado é preciso entrar com sua conta Google.</p>
+          <app-auth-button></app-auth-button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeLoginPrompt()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

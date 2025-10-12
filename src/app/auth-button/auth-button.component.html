@@ -9,10 +9,10 @@
       class="rounded-circle mr-2"
     />
     <span class="small mr-2">{{ user.name || user.email }}</span>
-    <button class="btn btn-outline-dark btn-sm" (click)="logout()">Sair</button>
+    <button type="button" class="btn btn-outline-dark" (click)="logout()">Sair</button>
   </div>
 </ng-container>
 
 <ng-template #loggedOut>
-  <button class="btn btn-outline-primary btn-sm" (click)="login()">Entrar com Google</button>
+  <button type="button" class="btn btn-outline-primary" (click)="login()">Entrar com Google</button>
 </ng-template>

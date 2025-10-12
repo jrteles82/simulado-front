@@ -1,7 +1,7 @@
 :host { display: block; }
 
 .landing-hero { background: radial-gradient(circle at top left, rgba(110,203,255,0.18), transparent 55%), linear-gradient(140deg, #11234E, #1E3D8C); color: #fff; position: relative; overflow: hidden; }
-.landing-hero--mobile { padding-left: 1rem; padding-right: 1rem; }
+.landing-hero--mobile { padding: 1.5rem 1.25rem 4.5rem; overflow: visible; }
 .landing-hero::after { content: ''; position: absolute; inset: auto 0 -1px 0; height: 120px; background: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 1440 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23f5f6fa' fill-opacity='1' d='M0,160L60,165.3C120,171,240,181,360,192C480,203,600,213,720,197.3C840,181,960,139,1080,149.3C1200,160,1320,224,1380,256L1440,288L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z'%3E%3C/path%3E%3C/svg%3E") bottom / cover no-repeat; pointer-events: none; }
 
 .hero-content { padding: 6rem 0 8rem; position: relative; }
@@ -60,7 +60,9 @@
   .hero-buttons { flex-direction: column; width: 100%; }
   .hero-buttons .btn { width: 100%; justify-content: center; padding: 0.75rem 1rem; }
   .feature-grid { grid-template-columns: 1fr; }
+  .feature-grid { margin-bottom: 2.5rem; }
   .feature-card { padding: 1.2rem 1.3rem; text-align: left; }
+  .landing-hero::after { height: 80px; }
   #features .feature-list .media { align-items: flex-start; }
   #features .feature-list .media-icon { font-size: 1.2rem; }
   #features .btn { width: 100%; }

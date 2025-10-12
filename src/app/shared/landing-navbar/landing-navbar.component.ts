@@ -1,7 +1,8 @@
-import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthButtonComponent } from '../../auth-button/auth-button.component';
+import { AuthService } from '../../services/auth.service';
 
 export type LandingNavItem = {
   label: string;
@@ -20,16 +21,20 @@ export type LandingNavItem = {
 })
 export class LandingNavbarComponent implements OnInit, OnDestroy {
   @Input() brandLink: string | any[] = ['/'];
-  @Input() brandMark = 'SM';
-  @Input() brandLabel = 'Simuleiro';
+  @Input() brandMark = 'SF';
+  @Input() brandLabel = 'Simulado FGV';
   @Input() navItems: LandingNavItem[] = [];
+  @Input() mobileCta: { label: string; routerLink: string | any[] } | null = null;
   @Input() showAuthButton = true;
   @Input() logoutHandler: (() => void) | null = null;
+  @Input() authRequiredRoutes: string[] = [];
+  @Output() loginRequested = new EventEmitter<void>();
 
   mobileMenuOpen = false;
   private readonly isMobileSignal = signal(false);
   private mediaQuery?: MediaQueryList;
   private readonly mediaListener = (event: MediaQueryListEvent) => this.applyMobileState(event.matches);
+  private readonly auth = inject(AuthService);
 
   ngOnInit(): void {
     if (typeof window === 'undefined') return;
@@ -56,6 +61,33 @@ export class LandingNavbarComponent implements OnInit, OnDestroy {
     if (this.logoutHandler) this.logoutHandler();
   }
 
+  handleRouterLinkClick(event: Event, item: LandingNavItem) {
+    if (!item.routerLink) {
+      this.handleNavClick();
+      return;
+    }
+    if (this.shouldRequireAuth(item.routerLink)) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.mobileMenuOpen = false;
+      this.loginRequested.emit();
+      return;
+    }
+    this.handleNavClick();
+  }
+
+  handleCtaClick(event: Event) {
+    if (!this.mobileCta?.routerLink) { return; }
+    if (this.shouldRequireAuth(this.mobileCta.routerLink)) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.mobileMenuOpen = false;
+      this.loginRequested.emit();
+      return;
+    }
+    this.handleNavClick();
+  }
+
   isMobile(): boolean {
     return this.isMobileSignal();
   }
@@ -63,5 +95,13 @@ export class LandingNavbarComponent implements OnInit, OnDestroy {
   private applyMobileState(matches: boolean) {
     this.isMobileSignal.set(matches);
     if (!matches) this.mobileMenuOpen = false;
+  }
+
+  private shouldRequireAuth(routerLink: string | any[]): boolean {
+    const path = Array.isArray(routerLink) ? routerLink[0] : routerLink;
+    if (typeof path !== 'string') return false;
+    const normalized = path.startsWith('/') ? path : `/${path}`;
+    if (!this.authRequiredRoutes.includes(normalized)) return false;
+    return !this.auth.current;
   }
 }

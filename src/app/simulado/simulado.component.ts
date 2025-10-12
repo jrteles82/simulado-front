@@ -41,12 +41,12 @@ export class SimuladoComponent implements OnInit, OnDestroy {
   private readonly alphabet = 'abcdefghijklmnopqrstuvwxyz';
   loginModalOpen = signal<boolean>(false);
   readonly navItems: LandingNavItem[] = [
-    { label: 'Simulados', routerLink: ['/simulado'] },
-    { label: 'Benefícios', href: '#features' },
-    { label: 'Planos', href: '#plans' },
-    { label: 'Depoimentos', href: '#testimonials' },
-    { label: 'Perguntas', href: '#faq' },
+    { label: 'Painel', href: '#painel' },
+    { label: 'Indicadores', href: '#metricas' },
+    { label: 'Relatórios', href: '#relatorios' },
+    { label: 'Minha conta', routerLink: ['/area-do-candidato'] },
   ];
+  readonly authRequiredRoutes = ['/area-do-candidato'];
   readonly logoutHandler = () => this.handleLogout();
 
   constructor(
@@ -69,6 +69,8 @@ export class SimuladoComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       },
     });
+
+    if (!this.auth.current) this.loginModalOpen.set(true);
   }
 
   ngOnDestroy(): void {

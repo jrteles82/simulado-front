@@ -7,7 +7,7 @@ import { requireAuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'simulado', component: SimuladoComponent },
+  { path: 'simulado', component: SimuladoComponent, canActivate: [requireAuthGuard] },
   { path: 'area-do-candidato', component: CandidateAreaComponent, canActivate: [requireAuthGuard] },
   ...adminRoutes,
   { path: '**', redirectTo: '' },

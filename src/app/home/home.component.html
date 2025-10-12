@@ -1,5 +1,7 @@
 <app-landing-navbar
   [navItems]="homeNavItems"
+  [authRequiredRoutes]="authRequiredRoutes"
+  (loginRequested)="openLoginModal()"
 ></app-landing-navbar>
 
 <section class="landing-hero" [ngClass]="{ 'landing-hero--mobile': isMobile() }">
@@ -17,7 +19,9 @@
           Simulados realistas, relatórios inteligentes e acompanhamento em tempo real para você chegar confiante no concurso da Câmara Municipal de Porto Velho.
         </p>
         <div class="hero-buttons d-flex flex-wrap justify-content-center justify-content-lg-start">
-          <a class="btn btn-light btn-lg text-primary" [routerLink]="heroCtaLink">
+          <a class="btn btn-light btn-lg text-primary"
+             [routerLink]="heroCtaLink"
+             (click)="onProtectedNavigation($event)">
             <i class="fas fa-play mr-2"></i> Fazer um simulado agora
           </a>
           <a class="btn btn-outline-light btn-lg" href="#features">Ver como funciona</a>
@@ -58,7 +62,11 @@
             </div>
           </li>
         </ul>
-        <a [routerLink]="heroCtaLink" class="btn btn-primary btn-lg w-100 w-lg-auto">Experimentar agora</a>
+        <a [routerLink]="heroCtaLink"
+           class="btn btn-primary btn-lg w-100 w-lg-auto"
+           (click)="onProtectedNavigation($event)">
+          Experimentar agora
+        </a>
       </div>
     </div>
   </div>
@@ -180,3 +188,26 @@
     </div>
   </div>
 </footer>
+
+<ng-container *ngIf="loginModalOpen()">
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title mb-0">Faça login para continuar</h5>
+          <button type="button" class="close" aria-label="Close" (click)="closeLoginModal()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3 text-muted">Entre com sua conta Google para acessar os simulados e acompanhar seu desempenho.</p>
+          <app-auth-button variant="mobile" (loggedOut)="closeLoginModal()" (navigated)="closeLoginModal()"></app-auth-button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeLoginModal()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

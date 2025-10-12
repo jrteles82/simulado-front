@@ -13,7 +13,8 @@
           [routerLink]="item.routerLink"
           [routerLinkActive]="'active'"
           [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-          [fragment]="item.fragment">
+          [fragment]="item.fragment"
+          (click)="handleRouterLinkClick($event, item)">
           {{ item.label }}
         </a>
         <ng-template #external>
@@ -24,12 +25,13 @@
 
     <div class="nav-actions">
       <ng-container *ngIf="!isMobile()">
-        <!-- <a
+        <a
           *ngIf="mobileCta"
           class="btn btn-sm btn-outline-light"
-          [routerLink]="mobileCta.routerLink">
+          [routerLink]="mobileCta.routerLink"
+          (click)="handleCtaClick($event)">
           {{ mobileCta.label }}
-        </a> -->
+        </a>
         <app-auth-button
           *ngIf="showAuthButton"
           (loggedOut)="handleLoggedOut()"
@@ -46,9 +48,10 @@
     </div>
 
     <!-- <a
-      *ngIf="isMobile() && mobileCta"
+      *ngIf="isMobile()"
       class="btn btn-sm btn-primary mobile-cta"
-      [routerLink]="mobileCta.routerLink">
+      [routerLink]="mobileCta.routerLink"
+      (click)="handleCtaClick($event)">
       {{ mobileCta.label }}
     </a> -->
   </div>
@@ -62,8 +65,8 @@
           [routerLink]="item.routerLink"
           [routerLinkActive]="'active'"
           [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-          (click)="handleNavClick()"
-          [fragment]="item.fragment">
+          [fragment]="item.fragment"
+          (click)="handleRouterLinkClick($event, item)">
           {{ item.label }}
         </a>
         <ng-template #mobileExternal>
@@ -73,16 +76,11 @@
     </div>
 
     <div class="mobile-actions">
-      <!-- <a
-        *ngIf="mobileCta"
-        class="btn btn-primary btn-block mb-3"
-        [routerLink]="mobileCta.routerLink"
-        (click)="handleNavClick()">
-        {{ mobileCta.label }}
-      </a> -->
       <app-auth-button
         *ngIf="showAuthButton"
+        variant="mobile"
         (loggedOut)="handleLoggedOut()"
+        (navigated)="handleNavClick()"
       ></app-auth-button>
     </div>
   </div>

@@ -6,6 +6,6 @@ export const requireAuthGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   if (auth.current) return true;
-  router.navigateByUrl('/');
+  router.navigate(['/'], { state: { loginRequired: true } });
   return false;
 };

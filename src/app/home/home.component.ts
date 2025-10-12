@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LandingNavbarComponent, LandingNavItem } from '../shared/landing-navbar/landing-navbar.component';
-import { isMobileViewport } from '../shared/utils/device';
+import { AuthButtonComponent } from '../auth-button/auth-button.component';
+import { AuthService } from '../services/auth.service';
 
 type Feature = { icon: string; title: string; description: string };
 type Plan = { name: string; price: string; description: string; perks: string[]; popular?: boolean };
@@ -13,13 +14,15 @@ type Faq = { question: string; answer: string };
 @Component({
   standalone: true,
   selector: 'app-home',
-  imports: [CommonModule, RouterLink, LandingNavbarComponent],
+  imports: [CommonModule, RouterLink, LandingNavbarComponent, AuthButtonComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private readonly auth = inject(AuthService);
   readonly heroCtaLink = ['/simulado'];
   readonly isMobile = signal(false);
+  readonly loginModalOpen = signal(false);
   readonly homeNavItems: LandingNavItem[] = [
     { label: 'Simulados', routerLink: ['/simulado'] },
     { label: 'Benefícios', href: '#features' },
@@ -27,7 +30,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     { label: 'Depoimentos', href: '#testimonials' },
     { label: 'Perguntas', href: '#faq' },
   ];
+  readonly authRequiredRoutes = ['/simulado', '/area-do-candidato'];
   readonly currentYear = new Date().getFullYear();
+  readonly isAuthenticated = computed(() => !!this.auth.current);
   readonly features: Feature[] = [
     {
       icon: 'fas fa-stopwatch',
@@ -106,12 +111,29 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (typeof window === 'undefined') return;
-    this.mediaQuery = window.matchMedia(`(max-width: ${isMobileViewport() ? 767.98 : 767.98}px)`);
-    this.isMobile.set(isMobileViewport());
+    this.mediaQuery = window.matchMedia('(max-width: 767.98px)');
+    this.isMobile.set(this.mediaQuery.matches);
     this.mediaQuery.addEventListener('change', this.mediaListener);
+
+    const state = window.history.state as { loginRequired?: boolean };
+    if (state?.loginRequired) {
+      this.openLoginModal();
+      const { loginRequired, ...rest } = state;
+      window.history.replaceState(rest, document.title);
+    }
   }
 
   ngOnDestroy(): void {
     this.mediaQuery?.removeEventListener('change', this.mediaListener);
+  }
+
+  openLoginModal() { this.loginModalOpen.set(true); }
+  closeLoginModal() { this.loginModalOpen.set(false); }
+
+  onProtectedNavigation(event: Event) {
+    if (this.isAuthenticated()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.openLoginModal();
   }
 }

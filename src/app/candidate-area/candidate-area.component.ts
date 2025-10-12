@@ -34,9 +34,12 @@ export class CandidateAreaComponent {
 
   readonly navItems: LandingNavItem[] = [
     { label: 'Simulados', routerLink: ['/simulado'] },
-    { label: 'Pagamentos', href: '#pagamentos' },
-    { label: 'Relatórios', href: '#relatorios' },
+    { label: 'Benefícios', href: '#features' },
+    { label: 'Planos', href: '#plans' },
+    { label: 'Depoimentos', href: '#testimonials' },
+    { label: 'Perguntas', href: '#faq' },
   ];
+  readonly authRequiredRoutes = ['/simulado'];
 
   readonly activePlan = signal({
     name: 'Pro',

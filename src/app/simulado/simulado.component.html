@@ -1,6 +1,8 @@
 <div class="home-hero text-white">
   <app-landing-navbar
     [navItems]="navItems"
+    [authRequiredRoutes]="authRequiredRoutes"
+    (loginRequested)="loginModalOpen.set(true)"
     [logoutHandler]="logoutHandler"
   ></app-landing-navbar>
 

@@ -1,0 +1,63 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Questões</h3>
+        <a routerLink="/admin/questions/new" class="btn btn-primary btn-sm">
+          <i class="fas fa-plus mr-1"></i> Nova questão
+        </a>
+      </div>
+      <div class="card-body">
+        <form class="form-row align-items-end" (ngSubmit)="load()">
+          <div class="form-group col-md-4">
+            <label for="filter-category" class="sr-only">Categoria</label>
+            <select id="filter-category" class="form-control" [(ngModel)]="filter.categoryId" name="categoryId">
+              <option [ngValue]="undefined">Todas as categorias</option>
+              <option *ngFor="let c of cats" [value]="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+          <div class="form-group col-md-5">
+            <label for="filter-search" class="sr-only">Buscar</label>
+            <input
+              id="filter-search"
+              class="form-control"
+              [(ngModel)]="filter.search"
+              name="search"
+              placeholder="Buscar enunciado..."
+            />
+          </div>
+          <div class="form-group col-md-3">
+            <button type="submit" class="btn btn-outline-primary btn-block">
+              <i class="fas fa-search mr-1"></i> Filtrar
+            </button>
+          </div>
+        </form>
+
+        <div *ngIf="!rows.length" class="text-muted mt-3">Nenhuma questão encontrada.</div>
+
+        <div *ngIf="rows.length" class="table-responsive mt-3">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Enunciado</th>
+                <th width="220">Categoria</th>
+                <th class="text-right" width="120">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let q of rows">
+                <td>{{ q.stem | slice: 0:80 }}<ng-container *ngIf="q.stem.length > 80">...</ng-container></td>
+                <td>{{ nameOf(q.categoryId) }}</td>
+                <td class="text-right">
+                  <a [routerLink]="['/admin/questions', q.id]" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-edit mr-1"></i> Editar
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

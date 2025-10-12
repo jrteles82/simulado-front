@@ -1,0 +1,64 @@
+<section class="container my-4">
+  <h2 class="h4 mb-3">Simulado</h2>
+
+  <form class="form-row align-items-end mb-3" (ngSubmit)="load()">
+    <div class="form-group col-md-4">
+      <label for="home-category">Categoria</label>
+      <select
+        id="home-category"
+        class="form-control"
+        [(ngModel)]="selectedCategoryId"
+        name="categoryId"
+        (change)="load()">
+        <option [ngValue]="undefined">Todas</option>
+        <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-group col-md-5">
+      <label for="home-search">Enunciado</label>
+      <input
+        id="home-search"
+        class="form-control"
+        [(ngModel)]="search"
+        name="search"
+        placeholder="Buscar enunciado..."
+        (keyup.enter)="load()"
+      />
+    </div>
+
+    <div class="form-group col-md-3">
+      <button type="submit" class="btn btn-primary btn-block mt-2 mt-md-0">Buscar</button>
+    </div>
+  </form>
+
+  <div *ngIf="questions.length === 0" class="alert alert-info">Nenhuma questão encontrada.</div>
+
+  <ol *ngIf="questions.length" class="pl-3">
+    <li *ngFor="let q of questions" class="mb-4">
+      <div class="font-weight-bold mb-2">{{ q.stem }}</div>
+      <ul class="list-unstyled pl-3">
+        <li *ngFor="let opt of q.options; let i = index" class="mb-1">
+          <span [class.font-weight-bold]="q.correctIndex === i">
+            {{ 'ABCDE'[i] }}. {{ opt }}
+          </span>
+        </li>
+      </ul>
+      <details>
+        <summary class="small text-muted">Comentário</summary>
+        <div class="mt-2">{{ q.explanation }}</div>
+      </details>
+      <hr />
+    </li>
+  </ol>
+
+  <div class="d-flex align-items-center mt-3">
+    <button type="button" class="btn btn-outline-secondary mr-2" (click)="prev()" [disabled]="skip === 0">
+      Anterior
+    </button>
+    <span class="mx-2">Página {{ skip / take + 1 }}</span>
+    <button type="button" class="btn btn-outline-secondary ml-2" (click)="next()" [disabled]="questions.length < take">
+      Próxima
+    </button>
+  </div>
+</section>

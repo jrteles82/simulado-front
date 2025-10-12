@@ -1,19 +1,22 @@
 import { Routes } from '@angular/router';
 import { canActivateAdmin } from '../guards/admin.guard';
 
+import { AdminLayoutComponent } from './admin-layout.component';
 import { AdminCategoriesComponent } from './categories.component';
 import { AdminCategoryFormComponent } from './category-form.component';
 import { AdminQuestionsComponent } from './questions.component';
 import { AdminQuestionFormComponent } from './question-form.component';
+import { AdminUsersComponent } from './users.component';
 
 export const adminRoutes: Routes = [
   {
     path: 'admin',
+    canActivate: [canActivateAdmin],
+    component: AdminLayoutComponent,
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'questions' },
       {
         path: 'categories',
-        //canActivate: [canActivateAdmin],
         children: [
           { path: '', component: AdminCategoriesComponent },
           { path: 'new', component: AdminCategoryFormComponent },
@@ -22,12 +25,15 @@ export const adminRoutes: Routes = [
       },
       {
         path: 'questions',
-        canActivate: [canActivateAdmin],
         children: [
           { path: '', component: AdminQuestionsComponent },
           { path: 'new', component: AdminQuestionFormComponent },
           { path: ':id', component: AdminQuestionFormComponent },
         ],
+      },
+      {
+        path: 'users',
+        component: AdminUsersComponent,
       },
     ],
   },

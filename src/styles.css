@@ -1,4 +1,4 @@
-body { background: #f6f7fb; }
+body:not(.sidebar-mini) { background: #f6f7fb; }
 .option-btn.correct { border-color: #198754; background: #eaf6ee; }
 .option-btn.wrong { border-color: #dc3545; background: #fbe9eb; }
 .explain-box { padding: .75rem; border: 1px dashed #ced4da; border-radius: .5rem; background: #f8f9fa; }

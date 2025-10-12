@@ -1,0 +1,45 @@
+<div class="row">
+  <div class="col-12 col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title mb-0">{{ id ? 'Editar categoria' : 'Nova categoria' }}</h3>
+      </div>
+
+      <form (ngSubmit)="save()" class="card-body">
+        <div class="form-group">
+          <label for="cat-name">Nome</label>
+          <input
+            id="cat-name"
+            name="name"
+            class="form-control"
+            [(ngModel)]="form.name"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="cat-slug">Slug</label>
+          <input
+            id="cat-slug"
+            name="slug"
+            class="form-control"
+            [(ngModel)]="form.slug"
+            required
+            pattern="[a-z0-9-]+"
+          />
+          <small class="form-text text-muted">Use apenas letras minúsculas, números e hífen.</small>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary" routerLink="/admin/categories">
+            Cancelar
+          </button>
+          <div>
+            <button type="submit" class="btn btn-primary mr-2">Salvar</button>
+            <button type="button" *ngIf="id" class="btn btn-danger" (click)="del()">Excluir</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

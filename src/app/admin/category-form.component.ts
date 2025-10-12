@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminCategoriesService } from '../services/admin-categories.service';
 import { Category } from '../models';
@@ -8,20 +8,8 @@ import { Category } from '../models';
 @Component({
   standalone: true,
   selector: 'app-category-form',
-  imports: [CommonModule, FormsModule],
-  template: `
-    <h3>{{id ? 'Editar' : 'Nova'}} Categoria</h3>
-    <form (ngSubmit)="save()">
-      <label>Nome</label>
-      <input [(ngModel)]="form.name" name="name" required />
-      <label>Slug</label>
-      <input [(ngModel)]="form.slug" name="slug" required pattern="[a-z0-9-]+" />
-      <div style="margin-top:.5rem">
-        <button type="submit">Salvar</button>
-        <button type="button" *ngIf="id" (click)="del()" style="margin-left:.5rem">Excluir</button>
-      </div>
-    </form>
-  `
+  imports: [CommonModule, FormsModule, RouterLink],
+  templateUrl: './category-form.component.html',
 })
 export class AdminCategoryFormComponent implements OnInit {
   id?: number;

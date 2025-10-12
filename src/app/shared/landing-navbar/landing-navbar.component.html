@@ -1,11 +1,11 @@
-<div class="landing-navbar">
-  <div class="container d-flex align-items-center justify-content-between py-3">
+<div class="landing-navbar" [class.mobile]="isMobile()">
+  <div class="container py-3 d-flex align-items-center justify-content-between">
     <a class="brand" [routerLink]="brandLink">
       <span class="brand-mark">{{ brandMark }}</span>
       <span>{{ brandLabel }}</span>
     </a>
 
-    <nav class="d-none d-md-flex align-items-center">
+    <nav class="desktop-nav d-flex align-items-center" *ngIf="!isMobile()">
       <ng-container *ngFor="let item of navItems">
         <a
           class="nav-link"
@@ -22,15 +22,68 @@
       </ng-container>
     </nav>
 
-    <div class="d-none d-md-inline-flex align-items-center landing-nav-actions" *ngIf="showAuthButton">
-      <app-auth-button (loggedOut)="logoutHandler && logoutHandler()"></app-auth-button>
+    <div class="nav-actions">
+      <ng-container *ngIf="!isMobile()">
+        <!-- <a
+          *ngIf="mobileCta"
+          class="btn btn-sm btn-outline-light"
+          [routerLink]="mobileCta.routerLink">
+          {{ mobileCta.label }}
+        </a> -->
+        <app-auth-button
+          *ngIf="showAuthButton"
+          (loggedOut)="handleLoggedOut()"
+        ></app-auth-button>
+      </ng-container>
+
+      <button
+        type="button"
+        class="btn btn-outline-light btn-sm mobile-toggle"
+        *ngIf="isMobile()"
+        (click)="toggleMobileNav()">
+        <i class="fas" [ngClass]="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+      </button>
     </div>
 
-    <a
-      *ngIf="mobileCta"
-      class="btn btn-sm btn-primary d-md-none"
+    <!-- <a
+      *ngIf="isMobile() && mobileCta"
+      class="btn btn-sm btn-primary mobile-cta"
       [routerLink]="mobileCta.routerLink">
       {{ mobileCta.label }}
-    </a>
+    </a> -->
+  </div>
+
+  <div class="mobile-menu" *ngIf="isMobile() && mobileMenuOpen">
+    <div class="mobile-links">
+      <ng-container *ngFor="let item of navItems">
+        <a
+          class="nav-link"
+          *ngIf="item.routerLink; else mobileExternal"
+          [routerLink]="item.routerLink"
+          [routerLinkActive]="'active'"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          (click)="handleNavClick()"
+          [fragment]="item.fragment">
+          {{ item.label }}
+        </a>
+        <ng-template #mobileExternal>
+          <a class="nav-link" *ngIf="item.href" [href]="item.href" (click)="handleNavClick()">{{ item.label }}</a>
+        </ng-template>
+      </ng-container>
+    </div>
+
+    <div class="mobile-actions">
+      <!-- <a
+        *ngIf="mobileCta"
+        class="btn btn-primary btn-block mb-3"
+        [routerLink]="mobileCta.routerLink"
+        (click)="handleNavClick()">
+        {{ mobileCta.label }}
+      </a> -->
+      <app-auth-button
+        *ngIf="showAuthButton"
+        (loggedOut)="handleLoggedOut()"
+      ></app-auth-button>
+    </div>
   </div>
 </div>

@@ -108,7 +108,7 @@ export class SimuladoComponent implements OnInit, OnDestroy {
     this.showExplain.set({});
     this.started.set(false);
     this.seconds.set(0);
-    if (this.timer) clearInterval(this.timer);
+    this.stopTimer();
 
     this.qService.list({ categoryId: catId, take: 1000, skip: 0 }).subscribe({
       next: (items) => {
@@ -145,7 +145,7 @@ export class SimuladoComponent implements OnInit, OnDestroy {
     this.answers.set({});
     this.showExplain.set({});
     this.seconds.set(0);
-    this.timer && clearInterval(this.timer);
+    this.stopTimer();
 
     // Roda a mesma lógica do start após resetar
     this.start();
@@ -154,7 +154,11 @@ export class SimuladoComponent implements OnInit, OnDestroy {
   selectAnswer(q: Question, i: number) {
     if (!this.started()) return;
     if (q.id in this.answers()) return;
-    this.answers.update((a) => ({ ...a, [q.id]: i }));
+    this.answers.update((a) => {
+      const next = { ...a, [q.id]: i };
+      if (Object.keys(next).length === this.total()) this.stopTimer();
+      return next;
+    });
     this.showExplain.update((s) => ({ ...s, [q.id]: true }));
 
     const isLastQuestion = this.idx() === this.total() - 1;
@@ -183,6 +187,7 @@ export class SimuladoComponent implements OnInit, OnDestroy {
       this.idx.update((v) => v + 1);
     } else {
       queueMicrotask(() => this.scrollToFinalReport());
+      this.stopTimer();
     }
   }
 
@@ -233,6 +238,7 @@ export class SimuladoComponent implements OnInit, OnDestroy {
     this.loginModalOpen.set(false);
     const currentCategory = this.categoryId();
     this.loadCategoryById(currentCategory);
+    this.stopTimer();
   }
 
   private scrollToAnsweredMetrics() {
@@ -243,6 +249,13 @@ export class SimuladoComponent implements OnInit, OnDestroy {
   private scrollToFinalReport() {
     const el = this.document?.getElementById('relatorios');
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  private stopTimer() {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
   }
 
   private shuffle<T>(arr: T[]): T[] {

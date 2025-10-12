@@ -13,7 +13,7 @@ type Faq = { question: string; answer: string };
 @Component({
   standalone: true,
   selector: 'app-home',
-  imports: [CommonModule, RouterLink, AuthButtonComponent, LandingNavbarComponent],
+  imports: [CommonModule, RouterLink, LandingNavbarComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })

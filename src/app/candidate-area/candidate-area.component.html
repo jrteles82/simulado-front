@@ -1,7 +1,6 @@
 <app-landing-navbar
   [navItems]="navItems"
   [mobileCta]="{ label: 'Simulados', routerLink: ['/simulado'] }"
-  [logoutHandler]="logoutHandler"
 ></app-landing-navbar>
 
 <div class="candidate-layout">
@@ -12,9 +11,6 @@
         <h1 class="h3 mb-1">Olá, {{ user()?.name || user()?.email }}</h1>
         <p class="text-muted mb-0">Gerencie sua assinatura, revise pagamentos e acompanhe seu desempenho nos simulados.</p>
       </div>
-      <!-- <div class="header-actions d-flex align-items-center mt-3 mt-md-0">
-        <a routerLink="/simulado" class="btn btn-primary mr-3">Ir para simulados</a>
-      </div> -->
     </div>
   </header>
 

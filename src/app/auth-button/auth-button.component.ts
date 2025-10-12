@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { AsyncPipe, NgIf } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../environments/environment';
 
@@ -12,6 +12,7 @@ import { environment } from '../../environments/environment';
 })
 export class AuthButtonComponent {
   auth = inject(AuthService);
+  private router = inject(Router);
   @Output() loggedOut = new EventEmitter<void>();
 
   login() {
@@ -24,5 +25,6 @@ export class AuthButtonComponent {
   logout() {
     this.auth.logout();
     this.loggedOut.emit();
+    this.router.navigateByUrl('/');
   }
 }

@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { LandingNavbarComponent, LandingNavItem } from '../shared/landing-navbar/landing-navbar.component';
 import { AuthService } from '../services/auth.service';
 
@@ -30,19 +30,13 @@ interface SimuladoReport {
 })
 export class CandidateAreaComponent {
   private auth = inject(AuthService);
-  private router = inject(Router);
   readonly user = computed(() => this.auth.current);
 
   readonly navItems: LandingNavItem[] = [
     { label: 'Simulados', routerLink: ['/simulado'] },
-    { label: 'Benefícios', href: '#features' },
-    { label: 'Planos', href: '#plans' },
-    { label: 'Depoimentos', href: '#testimonials' },
-    { label: 'Perguntas', href: '#faq' },
+    { label: 'Pagamentos', href: '#pagamentos' },
+    { label: 'Relatórios', href: '#relatorios' },
   ];
-  readonly logoutHandler = () => {
-    this.router.navigateByUrl('/');
-  };
 
   readonly activePlan = signal({
     name: 'Pro',

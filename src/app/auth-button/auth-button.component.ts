@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { AsyncPipe, NgIf } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../environments/environment';
 
 @Component({
   standalone: true,
   selector: 'app-auth-button',
-  imports: [NgIf, AsyncPipe],
+  imports: [NgIf, AsyncPipe, RouterLink],
   templateUrl: './auth-button.component.html',
 })
 export class AuthButtonComponent {

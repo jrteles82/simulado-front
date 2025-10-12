@@ -1,0 +1,24 @@
+:host { display: block; background: #f4f6fb; min-height: 100vh; }
+
+.candidate-header { background: linear-gradient(135deg, #162a58, #294bb8); color: #fff; padding: 2.75rem 0; box-shadow: inset 0 -1px 0 rgba(255,255,255,0.08); }
+.candidate-header .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.75rem; opacity: 0.75; }
+.candidate-header .header-actions .btn { border-radius: 0.85rem; }
+
+.plan-highlights { display: grid; gap: 0.8rem; }
+.plan-highlights .highlight { background: #f8f9fc; border-radius: 0.75rem; padding: 0.75rem 1rem; border: 1px solid rgba(17,35,78,0.08); }
+.plan-highlights .label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #6c7a99; margin-bottom: 0.35rem; }
+.plan-highlights .value { font-weight: 600; color: #192a56; }
+
+.table thead th { border-bottom: 1px solid rgba(17,35,78,0.12); font-size: 0.85rem; color: #6c7a99; text-transform: uppercase; letter-spacing: 0.08em; }
+.table tbody td { border-color: rgba(17,35,78,0.08); }
+
+.badge { border-radius: 999px; padding: 0.3rem 0.65rem; font-size: 0.75rem; }
+.badge-success { background: rgba(25, 135, 84, 0.15); color: #0f5132; }
+.badge-warning { background: rgba(255, 193, 7, 0.18); color: #856404; }
+.badge-danger { background: rgba(220, 53, 69, 0.15); color: #842029; }
+
+@media (max-width: 767.98px) {
+  .candidate-header { text-align: center; }
+  .candidate-header .header-actions { flex-direction: column; gap: 1rem; }
+  .candidate-header .header-actions .btn { width: 100%; }
+}

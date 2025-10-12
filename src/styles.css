@@ -44,3 +44,8 @@ body:not(.sidebar-mini) { background: #f5f6fa; color: #1f2a44; font-family: 'Int
 .modal-footer { border-top: 0; }
 .modal-backdrop { background-color: rgba(15,35,95,.55); }
 .text-white-75 { color: rgba(255,255,255,.75); }
+
+.user-trigger { display: inline-flex; align-items: center; gap: .5rem; border-radius: 999px; padding: .35rem .75rem; color: #fff; }
+.user-trigger img { border: 2px solid rgba(255,255,255,.35); }
+.user-trigger .user-initials { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,.2); font-weight: 600; }
+.dropdown-menu-right { right: 0; left: auto; }

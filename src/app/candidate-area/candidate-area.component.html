@@ -1,0 +1,119 @@
+<div class="candidate-layout">
+  <header class="candidate-header">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+      <div>
+        <p class="eyebrow mb-2">Área do candidato</p>
+        <h1 class="h3 mb-1">Olá, {{ user()?.name || user()?.email }}</h1>
+        <p class="text-muted mb-0">Gerencie sua assinatura, revise pagamentos e acompanhe seu desempenho nos simulados.</p>
+      </div>
+      <div class="header-actions d-flex align-items-center mt-3 mt-md-0">
+        <a routerLink="/simulado" class="btn btn-primary mr-3">Ir para simulados</a>
+        <app-auth-button></app-auth-button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container py-4 py-lg-5">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <section class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <h2 class="h5">Assinatura atual</h2>
+            <p class="text-muted mb-4">Plano {{ activePlan().name }} — Status: <strong>{{ activePlan().status }}</strong></p>
+            <div class="plan-highlights">
+              <div class="highlight">
+                <span class="label">Renovação</span>
+                <span class="value">{{ activePlan().renewalDate }}</span>
+              </div>
+              <div class="highlight">
+                <span class="label">Simulados este mês</span>
+                <span class="value">12</span>
+              </div>
+              <div class="highlight">
+                <span class="label">Tempo investido</span>
+                <span class="value">8h 27m</span>
+              </div>
+            </div>
+            <div class="d-grid gap-2 mt-4">
+              <button class="btn btn-primary">Renovar plano</button>
+              <button class="btn btn-outline-secondary">Alterar método de pagamento</button>
+              <button class="btn btn-link text-danger p-0">Cancelar assinatura</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-lg-8">
+        <section class="card shadow-sm border-0 mb-4">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 mb-0">Histórico de pagamentos</h2>
+              <button class="btn btn-sm btn-outline-primary">Baixar recibos</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Data</th>
+                    <th>Valor</th>
+                    <th>Forma</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let payment of paymentHistory()">
+                    <td>{{ payment.id }}</td>
+                    <td>{{ payment.date }}</td>
+                    <td>{{ payment.amount }}</td>
+                    <td>{{ payment.method }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'badge-success': payment.status === 'Pago',
+                        'badge-warning': payment.status === 'Pendente',
+                        'badge-danger': payment.status === 'Cancelado'
+                      }">{{ payment.status }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="card shadow-sm border-0">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 mb-0">Relatórios de simulados</h2>
+              <a routerLink="/simulado" class="btn btn-sm btn-outline-primary">Ver simulados</a>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Simulado</th>
+                    <th>Categoria</th>
+                    <th>Pontuação</th>
+                    <th>% Acertos</th>
+                    <th>Duração</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let report of reports()">
+                    <td>{{ report.date }}</td>
+                    <td>{{ report.title }}</td>
+                    <td>{{ report.category }}</td>
+                    <td>{{ report.score }}</td>
+                    <td>{{ (report.accuracy * 100) | number:'1.0-0' }}%</td>
+                    <td>{{ report.duration }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>

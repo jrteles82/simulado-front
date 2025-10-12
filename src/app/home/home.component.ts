@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AuthButtonComponent } from '../auth-button/auth-button.component';
 import { LandingNavbarComponent, LandingNavItem } from '../shared/landing-navbar/landing-navbar.component';
+import { isMobileViewport } from '../shared/utils/device';
 
 type Feature = { icon: string; title: string; description: string };
 type Plan = { name: string; price: string; description: string; perks: string[]; popular?: boolean };
@@ -17,8 +17,9 @@ type Faq = { question: string; answer: string };
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, OnDestroy {
   readonly heroCtaLink = ['/simulado'];
+  readonly isMobile = signal(false);
   readonly homeNavItems: LandingNavItem[] = [
     { label: 'Simulados', routerLink: ['/simulado'] },
     { label: 'Benefícios', href: '#features' },
@@ -99,4 +100,18 @@ export class HomeComponent {
       answer: 'Sim, a plataforma é responsiva e você pode resolver simulados pelo navegador no seu smartphone ou tablet sem instalar nada.',
     },
   ];
+
+  private mediaQuery?: MediaQueryList;
+  private readonly mediaListener = (event: MediaQueryListEvent) => this.isMobile.set(event.matches);
+
+  ngOnInit(): void {
+    if (typeof window === 'undefined') return;
+    this.mediaQuery = window.matchMedia(`(max-width: ${isMobileViewport() ? 767.98 : 767.98}px)`);
+    this.isMobile.set(isMobileViewport());
+    this.mediaQuery.addEventListener('change', this.mediaListener);
+  }
+
+  ngOnDestroy(): void {
+    this.mediaQuery?.removeEventListener('change', this.mediaListener);
+  }
 }

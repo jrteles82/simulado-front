@@ -2,21 +2,21 @@
   [navItems]="homeNavItems"
 ></app-landing-navbar>
 
-<section class="landing-hero">
+<section class="landing-hero" [ngClass]="{ 'landing-hero--mobile': isMobile() }">
   <div class="container hero-content">
     <div class="row align-items-center">
-      <div class="col-lg-6 mb-4 mb-lg-0">
+      <div class="col-lg-6 mb-5 mb-lg-0 text-center text-lg-left">
         <div class="hero-kicker">
           <i class="fas fa-bolt"></i>
           <span>Treine para a FGV com dados de verdade</span>
         </div>
-        <h1 class="display-4 font-weight-semibold mt-3 mb-3">
+        <h1 class="display-4 font-weight-semibold mt-3 mb-3 hero-title">
           Treine como se fosse o dia da prova.
         </h1>
-        <p class="lead mb-4 text-white-75">
+        <p class="lead mb-4 text-white-75 hero-subtitle">
           Simulados realistas, relatórios inteligentes e acompanhamento em tempo real para você chegar confiante no concurso da Câmara Municipal de Porto Velho.
         </p>
-        <div class="hero-buttons d-flex flex-wrap">
+        <div class="hero-buttons d-flex flex-wrap justify-content-center justify-content-lg-start">
           <a class="btn btn-light btn-lg text-primary" [routerLink]="heroCtaLink">
             <i class="fas fa-play mr-2"></i> Fazer um simulado agora
           </a>
@@ -39,26 +39,26 @@
 <section class="py-5 bg-light" id="features">
   <div class="container">
     <div class="section-heading text-center">
-      <div class="kicker">Por que usar o Simulado FGV</div>
+      <div class="kicker">Por que usar o Simuleiro</div>
       <h2 class="h3 font-weight-semibold mt-2">Tudo o que você precisa para treinar com estratégia</h2>
       <p class="text-muted mb-0">Organize seu tempo, acompanhe seu desempenho e descubra quais assuntos merecem sua atenção.</p>
     </div>
 
     <div class="row align-items-center">
-      <div class="col-lg-6 mb-4 mb-lg-0">
+      <div class="col-lg-6 mb-4 mb-lg-0 text-center text-lg-left">
         <img src="https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=900&q=80" class="img-fluid rounded-lg shadow" alt="Simulado FGV" loading="lazy">
       </div>
-      <div class="col-lg-6">
-        <ul class="list-unstyled mb-4">
-          <li class="media mb-4" *ngFor="let feature of features">
-            <span class="mr-3 text-primary text-black"><i [class]="feature.icon"></i></span>
-            <div class="media-body">
+      <div class="col-lg-6 text-center text-lg-left">
+        <ul class="list-unstyled mb-4 feature-list">
+          <li class="media mb-4 justify-content-center justify-content-lg-start" *ngFor="let feature of features">
+            <span class="mr-3 text-primary text-black media-icon"><i [class]="feature.icon"></i></span>
+            <div class="media-body text-left">
               <h5 class="mt-0 mb-1">{{ feature.title }}</h5>
               <p class="mb-0 text-muted">{{ feature.description }}</p>
             </div>
           </li>
         </ul>
-        <a [routerLink]="heroCtaLink" class="btn btn-primary btn-lg">Experimentar agora</a>
+        <a [routerLink]="heroCtaLink" class="btn btn-primary btn-lg w-100 w-lg-auto">Experimentar agora</a>
       </div>
     </div>
   </div>
@@ -107,7 +107,7 @@
     <div class="section-heading text-center">
       <div class="kicker">Histórias reais</div>
       <h2 class="h3 font-weight-semibold mt-2">Resultados que inspiram</h2>
-      <p class="text-muted mb-0">Veja como outros candidatos transformaram seus estudos com o Simulado FGV.</p>
+      <p class="text-muted mb-0">Veja como outros candidatos transformaram seus estudos com o Simuleiro.</p>
     </div>
 
     <div class="testimonial-grid">

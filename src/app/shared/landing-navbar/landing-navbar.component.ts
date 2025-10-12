@@ -20,8 +20,8 @@ export type LandingNavItem = {
 })
 export class LandingNavbarComponent implements OnInit, OnDestroy {
   @Input() brandLink: string | any[] = ['/'];
-  @Input() brandMark = 'SF';
-  @Input() brandLabel = 'Simulado FGV';
+  @Input() brandMark = 'SM';
+  @Input() brandLabel = 'Simuleiro';
   @Input() navItems: LandingNavItem[] = [];
   @Input() showAuthButton = true;
   @Input() logoutHandler: (() => void) | null = null;

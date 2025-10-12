@@ -17,26 +17,60 @@
 
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a routerLink="/admin/questions" class="brand-link">
+      <i class="fas fa-graduation-cap brand-image img-circle elevation-3" style="opacity: .8"></i>
       <span class="brand-text font-weight-light">Simulado Admin</span>
     </a>
 
     <div class="sidebar">
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
+        <div class="image">
+          <i class="fas fa-user-shield text-white-50"></i>
+        </div>
+        <div class="info">
+          <span class="d-block text-white-50 text-sm">Área Administrativa</span>
+        </div>
+      </div>
+
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
           <li class="nav-item">
-            <a routerLink="/admin/questions" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: false }">
-              <i class="nav-icon fas fa-question-circle"></i>
-              <p>Questões</p>
+            <a routerLink="/admin" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>Início</p>
             </a>
           </li>
-          <li class="nav-item">
-            <a routerLink="/admin/categories" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: false }">
-              <i class="nav-icon fas fa-list"></i>
-              <p>Categorias</p>
+
+          <li class="nav-header text-uppercase">Cadastros</li>
+
+          <li
+            class="nav-item has-treeview"
+            [class.menu-open]="contentMenuOpen()"
+          >
+            <a class="nav-link" [class.active]="contentMenuOpen()" href="#">
+              <i class="nav-icon fas fa-edit"></i>
+              <p>
+                Conteúdo
+                <i class="right fas fa-angle-left"></i>
+              </p>
             </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+                <a routerLink="/admin/questions" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Questões</p>
+                </a>
+              </li>
+              <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+                <a routerLink="/admin/categories" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Categorias</p>
+                </a>
+              </li>
+            </ul>
           </li>
-          <li class="nav-item">
-            <a routerLink="/admin/users" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: false }">
+
+          <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+            <a routerLink="/admin/users" class="nav-link">
               <i class="nav-icon fas fa-users"></i>
               <p>Usuários</p>
             </a>

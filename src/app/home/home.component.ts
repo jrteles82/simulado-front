@@ -154,10 +154,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   prev() {
+    if (!this.auth.current) {
+      this.loginModalOpen.set(true);
+      return;
+    }
     if (this.idx() > 0) this.idx.update((v) => v - 1);
   }
 
   next() {
+    if (!this.auth.current) {
+      this.loginModalOpen.set(true);
+      return;
+    }
     if (this.idx() < this.total() - 1) this.idx.update((v) => v + 1);
   }
 

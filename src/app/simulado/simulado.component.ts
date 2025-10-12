@@ -19,7 +19,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class SimuladoComponent implements OnInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
-  title = 'Simulado FGV – Câmara de Porto Velho';
+  title = 'Simular - O caminho para sua aprovação!';
 
   categories = signal<Category[]>([]);
   categoryId = signal<number | undefined>(undefined);
@@ -41,10 +41,11 @@ export class SimuladoComponent implements OnInit, OnDestroy {
   private readonly alphabet = 'abcdefghijklmnopqrstuvwxyz';
   loginModalOpen = signal<boolean>(false);
   readonly navItems: LandingNavItem[] = [
-    { label: 'Painel', href: '#painel' },
-    { label: 'Indicadores', href: '#metricas' },
-    { label: 'Relatórios', href: '#relatorios' },
-    { label: 'Minha conta', routerLink: ['/area-do-candidato'] },
+    { label: 'Simulados', routerLink: ['/simulado'] },
+    { label: 'Benefícios', href: '#features' },
+    { label: 'Planos', href: '#plans' },
+    { label: 'Depoimentos', href: '#testimonials' },
+    { label: 'Perguntas', href: '#faq' },
   ];
   readonly authRequiredRoutes = ['/area-do-candidato'];
   readonly logoutHandler = () => this.handleLogout();

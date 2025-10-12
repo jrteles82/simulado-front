@@ -1,25 +1,9 @@
 <div class="home-hero text-white">
-  <header class="home-navbar">
-    <div class="container d-flex align-items-center justify-content-between py-3">
-      <div class="d-flex align-items-center">
-        <div class="home-logo mr-3">
-          <span class="home-logo-icon">SF</span>
-        </div>
-        <div>
-          <h1 class="h5 mb-0 font-weight-semibold">Simulado FGV</h1>
-          <small class="text-white-50">Câmara Municipal de Porto Velho</small>
-        </div>
-      </div>
-      <nav class="home-nav-links d-none d-md-flex align-items-center">
-        <a class="nav-link active" href="#painel">Painel</a>
-        <a class="nav-link" href="#metricas">Indicadores</a>
-        <a class="nav-link" href="#relatorios">Relatórios</a>
-      </nav>
-      <div class="d-flex align-items-center">
-        <app-auth-button (loggedOut)="handleLogout()"></app-auth-button>
-      </div>
-    </div>
-  </header>
+  <app-landing-navbar
+    [navItems]="navItems"
+    [mobileCta]="{ label: 'Painel', routerLink: ['/simulado'] }"
+    [logoutHandler]="logoutHandler"
+  ></app-landing-navbar>
 
   <div class="container py-4 py-lg-5">
     <div class="row align-items-center gy-4">

@@ -7,12 +7,13 @@ import { CategoriesService } from '../services/categories.service';
 import { Category } from '../models/category.model';
 import { Question } from '../models/question.model';
 import { AuthButtonComponent } from '../auth-button/auth-button.component';
+import { LandingNavbarComponent, LandingNavItem } from '../shared/landing-navbar/landing-navbar.component';
 import { AuthService } from '../services/auth.service';
 
 @Component({
   standalone: true,
   selector: 'app-simulado',
-  imports: [CommonModule, FormsModule, AuthButtonComponent],
+  imports: [CommonModule, FormsModule, AuthButtonComponent, LandingNavbarComponent],
   templateUrl: './simulado.component.html',
   styleUrls: ['../app-root/app.component.css'],
 })
@@ -39,6 +40,14 @@ export class SimuladoComponent implements OnInit, OnDestroy {
   readonly Math = Math;
   private readonly alphabet = 'abcdefghijklmnopqrstuvwxyz';
   loginModalOpen = signal<boolean>(false);
+  readonly navItems: LandingNavItem[] = [
+    { label: 'Simulados', routerLink: ['/simulado'] },
+    { label: 'Benefícios', href: '#features' },
+    { label: 'Planos', href: '#plans' },
+    { label: 'Depoimentos', href: '#testimonials' },
+    { label: 'Perguntas', href: '#faq' },
+  ];
+  readonly logoutHandler = () => this.handleLogout();
 
   constructor(
     private qService: QuestionsService,

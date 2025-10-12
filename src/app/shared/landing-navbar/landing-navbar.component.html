@@ -1,0 +1,36 @@
+<div class="landing-navbar">
+  <div class="container d-flex align-items-center justify-content-between py-3">
+    <a class="brand" [routerLink]="brandLink">
+      <span class="brand-mark">{{ brandMark }}</span>
+      <span>{{ brandLabel }}</span>
+    </a>
+
+    <nav class="d-none d-md-flex align-items-center">
+      <ng-container *ngFor="let item of navItems">
+        <a
+          class="nav-link"
+          *ngIf="item.routerLink; else external"
+          [routerLink]="item.routerLink"
+          [routerLinkActive]="'active'"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+          [fragment]="item.fragment">
+          {{ item.label }}
+        </a>
+        <ng-template #external>
+          <a class="nav-link" *ngIf="item.href" [href]="item.href">{{ item.label }}</a>
+        </ng-template>
+      </ng-container>
+    </nav>
+
+    <div class="d-none d-md-inline-flex align-items-center landing-nav-actions" *ngIf="showAuthButton">
+      <app-auth-button (loggedOut)="logoutHandler && logoutHandler()"></app-auth-button>
+    </div>
+
+    <a
+      *ngIf="mobileCta"
+      class="btn btn-sm btn-primary d-md-none"
+      [routerLink]="mobileCta.routerLink">
+      {{ mobileCta.label }}
+    </a>
+  </div>
+</div>

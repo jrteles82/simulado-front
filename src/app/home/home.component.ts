@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthButtonComponent } from '../auth-button/auth-button.component';
+import { LandingNavbarComponent, LandingNavItem } from '../shared/landing-navbar/landing-navbar.component';
 
 type Feature = { icon: string; title: string; description: string };
 type Plan = { name: string; price: string; description: string; perks: string[]; popular?: boolean };
@@ -12,12 +13,19 @@ type Faq = { question: string; answer: string };
 @Component({
   standalone: true,
   selector: 'app-home',
-  imports: [CommonModule, RouterLink, AuthButtonComponent],
+  imports: [CommonModule, RouterLink, AuthButtonComponent, LandingNavbarComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent {
   readonly heroCtaLink = ['/simulado'];
+  readonly homeNavItems: LandingNavItem[] = [
+    { label: 'Simulados', routerLink: ['/simulado'] },
+    { label: 'Benefícios', href: '#features' },
+    { label: 'Planos', href: '#plans' },
+    { label: 'Depoimentos', href: '#testimonials' },
+    { label: 'Perguntas', href: '#faq' },
+  ];
   readonly currentYear = new Date().getFullYear();
   readonly features: Feature[] = [
     {

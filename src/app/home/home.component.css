@@ -1,16 +1,5 @@
 :host { display: block; }
 
-.landing-navbar { position: sticky; top: 0; z-index: 1030; backdrop-filter: blur(14px); background: rgba(10, 27, 68, 0.75); border-bottom: 1px solid rgba(255,255,255,0.08); }
-.landing-navbar .brand { display: flex; align-items: center; gap: 0.75rem; color: #fff; font-weight: 600; letter-spacing: 0.05em; }
-.landing-navbar .brand-mark { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.12); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
-.landing-navbar .nav-link { color: rgba(255,255,255,0.75); font-weight: 500; margin-left: 1.5rem; position: relative; }
-.landing-navbar .nav-link.active,
-.landing-navbar .nav-link:hover { color: #fff; }
-.landing-navbar .nav-link::after { content: ''; position: absolute; left: 0; right: 0; bottom: -0.45rem; height: 2px; background: transparent; transition: background 0.2s ease; }
-.landing-navbar .nav-link:hover::after,
-.landing-navbar .nav-link.active::after { background: #6ecbff; }
-.landing-nav-actions > * + * { margin-left: 1rem; }
-
 .landing-hero { background: radial-gradient(circle at top left, rgba(110,203,255,0.18), transparent 55%), linear-gradient(140deg, #11234E, #1E3D8C); color: #fff; position: relative; overflow: hidden; }
 .landing-hero::after { content: ''; position: absolute; inset: auto 0 -1px 0; height: 120px; background: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' viewBox='0 0 1440 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23f5f6fa' fill-opacity='1' d='M0,160L60,165.3C120,171,240,181,360,192C480,203,600,213,720,197.3C840,181,960,139,1080,149.3C1200,160,1320,224,1380,256L1440,288L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z'%3E%3C/path%3E%3C/svg%3E") bottom / cover no-repeat; pointer-events: none; }
 
@@ -55,7 +44,6 @@
 .footer a:hover { color: #fff; }
 
 @media (max-width: 767.98px) {
-  .landing-navbar .nav-link { margin-left: 1rem; }
   .hero-content { padding: 4rem 0 5.5rem; }
   .callout-strip { text-align: center; }
   .callout-strip .btn { width: 100%; margin-top: 1.2rem; }

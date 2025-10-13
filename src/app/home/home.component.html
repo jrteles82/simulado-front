@@ -20,8 +20,7 @@
         </p>
         <div class="hero-buttons d-flex flex-wrap justify-content-center justify-content-lg-start">
           <a class="btn btn-light btn-lg text-primary"
-             [routerLink]="heroCtaLink"
-             (click)="onProtectedNavigation($event)">
+             [routerLink]="['/simulados']">
             <i class="fas fa-play mr-2"></i> Fazer um simulado agora
           </a>
           <a class="btn btn-outline-light btn-lg" href="#features">Ver como funciona</a>
@@ -62,9 +61,8 @@
             </div>
           </li>
         </ul>
-        <a [routerLink]="heroCtaLink"
-           class="btn btn-primary btn-lg w-100 w-lg-auto"
-           (click)="onProtectedNavigation($event)">
+        <a [routerLink]="['/simulados']"
+           class="btn btn-primary btn-lg w-100 w-lg-auto">
           Experimentar agora
         </a>
       </div>
@@ -159,7 +157,7 @@
         <div class="footer-links d-flex">
           <a href="mailto:contato&#64;simuladofgv.com">contato&#64;simuladofgv.com</a>
           <span>•</span>
-          <a routerLink="/simulado">Acessar simulados</a>
+          <a routerLink="/simulados">Acessar simulados</a>
         </div>
       </div>
       <div class="col-md-3 mb-3 mb-md-0">

@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, computed, signal, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 import { QuestionsService } from '../services/questions.service';
 import { CategoriesService } from '../services/categories.service';
@@ -19,6 +20,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class SimuladoComponent implements OnInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
+  private readonly route = inject(ActivatedRoute);
   title = 'Simular - O caminho para sua aprovação!';
 
   categories = signal<Category[]>([]);
@@ -41,7 +43,7 @@ export class SimuladoComponent implements OnInit, OnDestroy {
   private readonly alphabet = 'abcdefghijklmnopqrstuvwxyz';
   loginModalOpen = signal<boolean>(false);
   readonly navItems: LandingNavItem[] = [
-    { label: 'Simulados', routerLink: ['/simulado'] },
+    { label: 'Simulados', routerLink: ['/simulados'] },
     { label: 'Benefícios', href: '#features' },
     { label: 'Planos', href: '#plans' },
     { label: 'Depoimentos', href: '#testimonials' },
@@ -49,20 +51,25 @@ export class SimuladoComponent implements OnInit, OnDestroy {
   ];
   readonly authRequiredRoutes = ['/area-do-candidato'];
   readonly logoutHandler = () => this.handleLogout();
+  private pendingCategoryId?: number;
 
   constructor(
     private qService: QuestionsService,
     private cService: CategoriesService,
     private auth: AuthService,
-  ) {}
+  ) {
+    this.route.queryParamMap.subscribe((params) => {
+      const categoryParam = params.get('category');
+      this.pendingCategoryId = categoryParam ? Number(categoryParam) : undefined;
+      this.tryApplyPendingCategory();
+    });
+  }
 
   ngOnInit(): void {
     this.cService.list().subscribe({
       next: (cats) => {
         this.categories.set(cats);
-        const first = cats[0]?.id;
-        this.categoryId.set(first);
-        this.loadCategoryById(first);
+        this.tryApplyPendingCategory();
       },
       error: (err) => {
         console.error(err);
@@ -252,6 +259,20 @@ export class SimuladoComponent implements OnInit, OnDestroy {
   private scrollToFinalReport() {
     const el = this.document?.getElementById('relatorios');
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  private tryApplyPendingCategory() {
+    const cats = this.categories();
+    if (!cats.length) return;
+    let target = this.pendingCategoryId;
+    if (target == null || !cats.some((c) => c.id === target)) {
+      target = cats[0]?.id;
+    }
+    if (target == null) return;
+    if (this.categoryId() === target && this.pool().length) return;
+    this.categoryId.set(target);
+    this.loadCategoryById(target);
+    this.pendingCategoryId = undefined;
   }
 
   private stopTimer() {

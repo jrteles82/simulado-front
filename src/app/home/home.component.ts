@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LandingNavbarComponent, LandingNavItem } from '../shared/landing-navbar/landing-navbar.component';
@@ -20,11 +20,11 @@ type Faq = { question: string; answer: string };
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
-  readonly heroCtaLink = ['/simulado'];
+  readonly heroCtaLink = ['/simulados'];
   readonly isMobile = signal(false);
   readonly loginModalOpen = signal(false);
   readonly homeNavItems: LandingNavItem[] = [
-    { label: 'Simulados', routerLink: ['/simulado'] },
+    { label: 'Simulados', routerLink: ['/simulados'] },
     { label: 'Benefícios', href: '#features' },
     { label: 'Planos', href: '#plans' },
     { label: 'Depoimentos', href: '#testimonials' },
@@ -32,7 +32,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
   readonly authRequiredRoutes = ['/simulado', '/area-do-candidato'];
   readonly currentYear = new Date().getFullYear();
-  readonly isAuthenticated = computed(() => !!this.auth.current);
   readonly features: Feature[] = [
     {
       icon: 'fas fa-stopwatch',
@@ -130,10 +129,4 @@ export class HomeComponent implements OnInit, OnDestroy {
   openLoginModal() { this.loginModalOpen.set(true); }
   closeLoginModal() { this.loginModalOpen.set(false); }
 
-  onProtectedNavigation(event: Event) {
-    if (this.isAuthenticated()) return;
-    event.preventDefault();
-    event.stopPropagation();
-    this.openLoginModal();
-  }
 }

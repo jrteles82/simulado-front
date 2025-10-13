@@ -33,11 +33,9 @@ export class CandidateAreaComponent {
   readonly user = computed(() => this.auth.current);
 
   readonly navItems: LandingNavItem[] = [
-    { label: 'Simulados', routerLink: ['/simulado'] },
-    { label: 'Benefícios', href: '#features' },
-    { label: 'Planos', href: '#plans' },
-    { label: 'Depoimentos', href: '#testimonials' },
-    { label: 'Perguntas', href: '#faq' },
+    { label: 'Simulados', routerLink: ['/simulados'] },
+    { label: 'Pagamentos', href: '#pagamentos' },
+    { label: 'Relatórios', href: '#relatorios' },
   ];
   readonly authRequiredRoutes = ['/simulado'];
 

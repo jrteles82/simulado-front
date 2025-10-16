@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiBase: 'https://simulado-api-eight.vercel.app',
-  auth: { googleStart: 'https://simulado-api-eight.vercel.app/api/auth/google' },
+  apiBase: 'https://api.simularium.com.br',
+  auth: { googleStart: 'https://api.simularium.com.br/auth/google' },
 };

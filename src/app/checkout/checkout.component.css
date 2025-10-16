@@ -5,7 +5,10 @@
 .plan-option.active { border-color: #1f4faa; box-shadow: 0 18px 40px rgba(31,58,115,0.18); }
 .plan-price { font-size: 1.2rem; font-weight: 600; color: #1f4faa; }
 .btn-group .btn { flex: 1 1 50%; border-radius: .75rem !important; }
-#wallet_container { min-height: 220px; }
+.payment-brick { min-height: 260px; border: 1px dashed rgba(31,58,115,0.25); border-radius: 0.75rem; padding: 1rem; background: rgba(255,255,255,0.7); }
+.payment-instructions { font-size: 0.9rem; }
+#card_wallet_container,
+#pix_wallet_container { min-height: 220px; }
 
 @media (max-width: 767.98px) {
   .plan-option { padding: 0.9rem 1rem; }

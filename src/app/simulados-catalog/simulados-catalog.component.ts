@@ -99,6 +99,7 @@ export class SimuladosCatalogComponent {
 
   openSimulado(category: CatalogCategory) {
     if (!this.auth.current) {
+      try { localStorage.setItem('post_login_redirect', `/simulado?category=${category.id}`); } catch {}
       this.loginRequested();
       return;
     }

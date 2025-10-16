@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthButtonComponent } from '../../auth-button/auth-button.component';
 import { AuthService } from '../../services/auth.service';
 
@@ -35,6 +35,7 @@ export class LandingNavbarComponent implements OnInit, OnDestroy {
   private mediaQuery?: MediaQueryList;
   private readonly mediaListener = (event: MediaQueryListEvent) => this.applyMobileState(event.matches);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     if (typeof window === 'undefined') return;
@@ -66,9 +67,11 @@ export class LandingNavbarComponent implements OnInit, OnDestroy {
       this.handleNavClick();
       return;
     }
-    if (this.shouldRequireAuth(item.routerLink)) {
+    const target = this.normalizeRoute(item.routerLink, item.fragment);
+    if (this.shouldRequireAuth(target)) {
       event.preventDefault();
       event.stopPropagation();
+      this.storeRedirect(target);
       this.mobileMenuOpen = false;
       this.loginRequested.emit();
       return;
@@ -78,9 +81,11 @@ export class LandingNavbarComponent implements OnInit, OnDestroy {
 
   handleCtaClick(event: Event) {
     if (!this.mobileCta?.routerLink) { return; }
-    if (this.shouldRequireAuth(this.mobileCta.routerLink)) {
+    const target = this.normalizeRoute(this.mobileCta.routerLink);
+    if (this.shouldRequireAuth(target)) {
       event.preventDefault();
       event.stopPropagation();
+      this.storeRedirect(target);
       this.mobileMenuOpen = false;
       this.loginRequested.emit();
       return;
@@ -97,11 +102,20 @@ export class LandingNavbarComponent implements OnInit, OnDestroy {
     if (!matches) this.mobileMenuOpen = false;
   }
 
-  private shouldRequireAuth(routerLink: string | any[]): boolean {
-    const path = Array.isArray(routerLink) ? routerLink[0] : routerLink;
-    if (typeof path !== 'string') return false;
-    const normalized = path.startsWith('/') ? path : `/${path}`;
-    if (!this.authRequiredRoutes.includes(normalized)) return false;
+  private shouldRequireAuth(normalizedPath: string): boolean {
+    const basePath = normalizedPath.split(/[?#]/)[0];
+    if (!this.authRequiredRoutes.includes(basePath)) return false;
     return !this.auth.current;
+  }
+
+  private normalizeRoute(routerLink: string | any[], fragment?: string): string {
+    const commands = Array.isArray(routerLink) ? routerLink : [routerLink];
+    const extras = fragment ? { fragment } : undefined;
+    const urlTree = this.router.createUrlTree(commands, extras);
+    return this.router.serializeUrl(urlTree);
+  }
+
+  private storeRedirect(url: string) {
+    try { localStorage.setItem('post_login_redirect', url); } catch {}
   }
 }

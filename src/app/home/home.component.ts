@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LandingNavbarComponent, LandingNavItem } from '../shared/landing-navbar/landing-navbar.component';
 import { AuthButtonComponent } from '../auth-button/auth-button.component';
 import { PlansService, Plan } from '../services/plans.service';
+import { AuthService } from '../services/auth.service';
 
 type Feature = { icon: string; title: string; description: string };
 type Testimonial = { quote: string; author: string; role: string };
@@ -18,6 +19,8 @@ type Faq = { question: string; answer: string };
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly plansService = inject(PlansService);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   readonly heroCtaLink = ['/simulados'];
   readonly isMobile = signal(false);
@@ -33,7 +36,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     { label: 'Depoimentos', href: '#testimonials' },
     { label: 'Perguntas', href: '#faq' },
   ];
-  readonly authRequiredRoutes = ['/simulado', '/area-do-candidato'];
+  readonly authRequiredRoutes = ['/simulado', '/area-do-candidato', '/checkout', '/checkout/success'];
   readonly currentYear = new Date().getFullYear();
 
   readonly features: Feature[] = [
@@ -134,5 +137,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       return months === 1 ? '1 mês' : `${months} meses`;
     }
     return `${plan.durationDays} dias`;
+  }
+
+  checkout(plan: Plan): void {
+    const target = `/checkout?plan=${plan.slug}`;
+    if (!this.auth.current) {
+      try { localStorage.setItem('post_login_redirect', target); } catch {}
+      this.openLoginModal();
+      return;
+    }
+    this.router.navigateByUrl(target);
   }
 }

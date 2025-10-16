@@ -1,0 +1,98 @@
+<section class="checkout-page" *ngIf="!loadingPlans(); else loadingTpl">
+  <div class="container py-5">
+    <div class="row">
+      <div class="col-lg-7 mb-4 mb-lg-0">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h1 class="h5 mb-0">Escolha seu plano</h1>
+            <a routerLink="/simulados" class="btn btn-sm btn-outline-primary">Ver catálogo</a>
+          </div>
+          <div class="card-body">
+            <div *ngIf="plansError(); else planList" class="alert alert-danger" role="alert">{{ plansError() }}</div>
+            <ng-template #planList>
+              <div class="plan-options" *ngIf="plans().length; else emptyPlans">
+                <button
+                  *ngFor="let plan of plans()"
+                  type="button"
+                  class="plan-option"
+                  [class.active]="plan.slug === selectedSlug()"
+                  (click)="selectPlan(plan)">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h2 class="h6 mb-1">{{ plan.name }}</h2>
+                      <p class="mb-1 text-muted small">{{ plan.description || 'Plano sem descrição cadastrada.' }}</p>
+                      <small class="text-muted">Duração: {{ formatDuration(plan) }}</small>
+                    </div>
+                    <div class="plan-price">{{ formatPrice(plan) }}</div>
+                  </div>
+                </button>
+              </div>
+              <ng-template #emptyPlans>
+                <div class="alert alert-warning" role="alert">Nenhum plano disponível no momento.</div>
+              </ng-template>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-4" *ngIf="selectedPlanSignal() as plan">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Resumo</h2>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Plano escolhido</span>
+              <span class="font-weight-semibold">{{ plan.name }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Valor</span>
+              <span class="font-weight-semibold">{{ formatPrice(plan) }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Duração</span>
+              <span class="font-weight-semibold">{{ formatDuration(plan) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card shadow-sm">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Pagamento</h2>
+          </div>
+          <div class="card-body">
+            <div class="btn-group btn-group-toggle mb-3 d-flex" data-toggle="buttons">
+              <label class="btn btn-outline-primary" [class.active]="paymentMethod() === 'card'">
+                <input type="radio" autocomplete="off" (change)="selectPayment('card')" [checked]="paymentMethod() === 'card'"> Cartão de crédito
+              </label>
+              <label class="btn btn-outline-primary" [class.active]="paymentMethod() === 'pix'">
+                <input type="radio" autocomplete="off" (change)="selectPayment('pix')" [checked]="paymentMethod() === 'pix'"> Pix
+              </label>
+            </div>
+
+            <p class="text-muted small">
+              Você será redirecionado ao fluxo seguro do Mercado Pago para concluir a compra.
+            </p>
+
+            <button class="btn btn-primary btn-block mb-3" (click)="finalize()" [disabled]="creatingPreference() || !selectedPlanSignal()">
+              {{ creatingPreference() ? 'Preparando pagamento…' : 'Continuar com pagamento' }}
+            </button>
+
+            <div *ngIf="checkoutError()" class="alert alert-danger" role="alert">{{ checkoutError() }}</div>
+            <div *ngIf="paymentId()" class="alert alert-info" role="alert">
+              Número do pagamento: <code>{{ paymentId() }}</code>
+            </div>
+
+            <div id="wallet_container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #loadingTpl>
+  <div class="container py-5">
+    <div class="alert alert-info" role="status">Carregando planos…</div>
+  </div>
+</ng-template>

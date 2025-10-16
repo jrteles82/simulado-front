@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -10,7 +10,8 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  constructor(private auth: AuthService) {}
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.handleAuthCallback();
@@ -22,5 +23,12 @@ export class AppComponent implements OnInit {
     const token = decodeURIComponent(m[1]);
     this.auth.setToken(token);
     window.history.replaceState({}, '', '/');
+
+    let redirect: string | null = null;
+    try { redirect = localStorage.getItem('post_login_redirect'); } catch {}
+    if (redirect) {
+      try { localStorage.removeItem('post_login_redirect'); } catch {}
+      this.router.navigateByUrl(redirect).catch(() => this.router.navigateByUrl('/'));
+    }
   }
 }

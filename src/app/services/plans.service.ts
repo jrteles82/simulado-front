@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
-
 export interface Plan {
   id: number;
   name: string;
@@ -13,6 +12,7 @@ export interface Plan {
   durationDays: number;
   description?: string;
   benefits?: string[];
+  popular?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,14 +20,4 @@ export class PlansService {
   private base = environment.apiBase;
   constructor(private http: HttpClient) {}
   list() { return this.http.get<Plan[]>(`${this.base}/plans`); }
-}
-
-// src/app/services/checkout.service.ts
-@Injectable({ providedIn: 'root' })
-export class CheckoutService {
-  private base = environment.apiBase || '/api';
-  constructor(private http: HttpClient) {}
-  start(planSlug: string) {
-    return this.http.post<{ preferenceId: string }>(`${this.base}/payments/checkout`, { planSlug });
-  }
 }

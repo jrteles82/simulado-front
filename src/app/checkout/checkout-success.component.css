@@ -1,0 +1,3 @@
+.checkout-success { background: #f5f7fb; min-height: 80vh; }
+.payment-summary { border: 1px solid rgba(31,58,115,0.15); border-radius: 1rem; padding: 1.5rem; background: #fff; display: grid; gap: 0.6rem; }
+.payment-summary span { font-size: 0.95rem; }

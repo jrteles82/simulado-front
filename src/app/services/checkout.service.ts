@@ -11,11 +11,14 @@ export class CheckoutService {
     return this.http.post<{ preferenceId: string; paymentId: string }>(`${this.base}/payments/checkout`, { planSlug });
   }
 
-  payWithCard(planSlug: string, cardPayload: any) {
-    return this.http.post<{ paymentId: string; status: string; redirectUrl?: string }>(`${this.base}/payments/checkout/card`, {
-      planSlug,
-      ...cardPayload,
-    });
+  submitPayment(payload: {
+    planSlug: string;
+    preferenceId: string;
+    paymentId?: string | null;
+    selectedPaymentMethod: any;
+    formData: any;
+  }) {
+    return this.http.post<{ paymentId: string; status: string; redirectUrl?: string }>(`${this.base}/checkout/payment`, payload);
   }
 
   getStatus(paymentId: string) {

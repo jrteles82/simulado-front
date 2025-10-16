@@ -7,7 +7,7 @@
 .btn-group .btn { flex: 1 1 50%; border-radius: .75rem !important; }
 .payment-brick { min-height: 260px; border: 1px dashed rgba(31,58,115,0.25); border-radius: 0.75rem; padding: 1rem; background: rgba(255,255,255,0.7); }
 .payment-instructions { font-size: 0.9rem; }
-#card_wallet_container,
+#payment_brick_container,
 #pix_wallet_container { min-height: 220px; }
 
 @media (max-width: 767.98px) {

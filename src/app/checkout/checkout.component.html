@@ -71,7 +71,7 @@
             </div>
 
             <p class="text-muted small">
-              Você será redirecionado ao fluxo seguro do Mercado Pago para concluir a compra.
+              Seus dados são processados diretamente pelo Mercado Pago em um ambiente seguro.
             </p>
 
             <button class="btn btn-primary btn-block mb-3" (click)="finalize()" [disabled]="creatingPreference() || !selectedPlanSignal()">
@@ -90,7 +90,7 @@
             </div>
 
             <div class="payment-brick" *ngIf="paymentMethod() === 'card'">
-              <div id="card_wallet_container"></div>
+              <div id="payment_brick_container"></div>
             </div>
             <div class="payment-brick" *ngIf="paymentMethod() === 'pix'">
               <div id="pix_wallet_container"></div>

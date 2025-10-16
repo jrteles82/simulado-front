@@ -6,6 +6,7 @@ import { PlansService, Plan } from '../services/plans.service';
 import { CheckoutService } from '../services/checkout.service';
 import { environment } from '../../environments/environment';
 import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 type PaymentMethod = 'card' | 'pix';
 
@@ -21,6 +22,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly plansService = inject(PlansService);
   private readonly checkoutService = inject(CheckoutService);
+  private readonly auth = inject(AuthService);
 
   readonly plans = signal<Plan[]>([]);
   readonly loadingPlans = signal(true);
@@ -39,7 +41,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   private mp: any;
   private bricks: any;
-  private walletController: any;
+  private brickController: any;
   private initBricksPromise: Promise<void> | null = null;
 
   ngOnInit(): void {
@@ -188,28 +190,35 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     await this.initMercadoPago();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    const containerId = method === 'card' ? 'card_wallet_container' : 'pix_wallet_container';
+    const containerId = method === 'card' ? 'payment_brick_container' : 'pix_wallet_container';
 
     if (method === 'card') {
       const amount = (plan.priceCents ?? 0) / 100;
+      const payer = this.buildPayer();
+      const initialization: any = { amount, preferenceId };
+      if (payer) initialization.payer = payer;
+
       const settings = {
-        initialization: {
-          amount,
-          preferenceId,
-        },
+        initialization,
         customization: {
-          visual: { style: { theme: 'dark' } },
+          visual: { style: { theme: 'default' } },
+          paymentMethods: {
+            creditCard: 'all',
+            bankTransfer: "all",
+            maxInstallments: 1,
+          },
         },
         callbacks: {
           onReady: () => {},
-          onSubmit: (cardData: any) => this.handleCardSubmit(plan, preferenceId, cardData),
+          onSubmit: ({ selectedPaymentMethod, formData }: any) =>
+            this.handlePaymentSubmit(plan, preferenceId, selectedPaymentMethod, formData),
           onError: (error: any) => {
             console.error(error);
             this.checkoutError.set('Ocorreu um erro ao renderizar o pagamento.');
           },
         },
       };
-      this.walletController = await this.bricks.create('cardPayment', containerId, settings);
+      this.brickController = await this.bricks.create('payment', containerId, settings);
       return;
     }
 
@@ -235,24 +244,46 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       },
     };
 
-    this.walletController = await this.bricks.create('wallet', containerId, settings);
+    this.brickController = await this.bricks.create('wallet', containerId, settings);
   }
 
   private cleanupBrick(): void {
-    if (this.walletController?.unmount) {
-      try { this.walletController.unmount(); } catch (err) { console.warn('Erro ao desmontar brick', err); }
+    if (this.brickController?.unmount) {
+      try { this.brickController.unmount(); } catch (err) { console.warn('Erro ao desmontar brick', err); }
     }
-    this.walletController = null;
+    this.brickController = null;
   }
 
-  private async handleCardSubmit(plan: Plan, preferenceId: string, cardData: any): Promise<void> {
+  private buildPayer() {
+    const user = this.auth.current;
+    if (!user) return undefined;
+    const name = (user.name || '').trim();
+    if (!name) {
+      return { email: user.email, firstName: '', lastName: '' };
+    }
+    const [firstName, ...rest] = name.split(/\s+/);
+    return {
+      email: user.email,
+      firstName: firstName || '',
+      lastName: rest.join(' ') || '',
+    };
+  }
+
+  private async handlePaymentSubmit(
+    plan: Plan,
+    preferenceId: string,
+    selectedPaymentMethod: any,
+    formData: any,
+  ): Promise<void> {
     this.checkoutError.set(null);
     this.creatingPreference.set(true);
     try {
-      const response = await firstValueFrom(this.checkoutService.payWithCard(plan.slug, {
+      const response = await firstValueFrom(this.checkoutService.submitPayment({
+        planSlug: plan.slug,
         preferenceId,
         paymentId: this.paymentId(),
-        cardData,
+        selectedPaymentMethod,
+        formData,
       }));
       const paymentId = (response as any)?.paymentId ?? (response as any)?.id ?? null;
       if (paymentId) {

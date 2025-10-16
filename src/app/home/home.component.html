@@ -90,21 +90,32 @@
       <p class="text-muted mb-0">Comece gratuito e evolua para recursos avançados sempre que quiser.</p>
     </div>
 
-    <div class="plan-grid">
-      <div class="price-card" *ngFor="let plan of plans" [class.popular]="plan.popular">
-        <div *ngIf="plan.popular" class="badge-popular">Popular</div>
-        <h3 class="h4 mb-1">{{ plan.name }}</h3>
-        <p class="text-primary font-weight-semibold h5 mb-2">{{ plan.price }}</p>
-        <p class="text-muted">{{ plan.description }}</p>
-        <ul>
-          <li *ngFor="let perk of plan.perks">
-            <i class="fas fa-check"></i>
-            <span>{{ perk }}</span>
-          </li>
-        </ul>
-        <a [routerLink]="heroCtaLink" class="btn btn-primary btn-block mt-4">Quero este plano</a>
-      </div>
-    </div>
+    <ng-container *ngIf="!plansLoading(); else plansLoadingTpl">
+      <div *ngIf="plansError(); else plansList" class="alert alert-danger" role="alert">{{ plansError() }}</div>
+      <ng-template #plansList>
+        <div class="plan-grid" *ngIf="plans().length; else emptyPlans">
+          <div class="price-card" *ngFor="let plan of plans()">
+            <h3 class="h4 mb-1">{{ plan.name }}</h3>
+            <p class="text-primary font-weight-semibold h5 mb-2">{{ formatPrice(plan) }}</p>
+            <p class="text-muted mb-2">{{ plan.description || 'Assine para desbloquear simulados exclusivos dessa categoria.' }}</p>
+            <ul *ngIf="plan.benefits?.length" class="plan-benefits">
+              <li *ngFor="let benefit of plan.benefits">
+                <i class="fas fa-check"></i>
+                <span>{{ benefit }}</span>
+              </li>
+            </ul>
+            <small class="text-muted d-block mb-3" *ngIf="formatDuration(plan)">Duração: {{ formatDuration(plan) }}</small>
+            <a routerLink="/checkout" class="btn btn-primary btn-block">Assinar plano</a>
+          </div>
+        </div>
+        <ng-template #emptyPlans>
+          <div class="alert alert-warning" role="alert">Nenhum plano disponível no momento.</div>
+        </ng-template>
+      </ng-template>
+    </ng-container>
+    <ng-template #plansLoadingTpl>
+      <div class="alert alert-info" role="status">Carregando planos…</div>
+    </ng-template>
   </div>
 </section>
 

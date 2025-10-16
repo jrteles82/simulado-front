@@ -32,11 +32,9 @@ export class SimuladosCatalogComponent {
   readonly pageSize = 6;
   readonly page = signal(1);
   readonly navItems: LandingNavItem[] = [
-    { label: 'Simulados', routerLink: ['/simulados'] },
-    { label: 'Benefícios', href: '#features' },
-    { label: 'Planos', href: '#plans' },
-    { label: 'Depoimentos', href: '#testimonials' },
-    { label: 'Perguntas', href: '#faq' },
+    { label: 'Início', routerLink: ['/'] },
+    { label: 'Catálogo', routerLink: ['/simulados'] },
+    { label: 'Minha conta', routerLink: ['/area-do-candidato'] },
   ];
   readonly authRequiredRoutes = ['/area-do-candidato'];
 

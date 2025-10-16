@@ -11,13 +11,15 @@ export interface Plan {
   priceCents: number;
   currency: string;
   durationDays: number;
+  description?: string;
+  benefits?: string[];
 }
 
 @Injectable({ providedIn: 'root' })
 export class PlansService {
-  private base = environment.apiBase || '/api';
+  private base = environment.apiBase;
   constructor(private http: HttpClient) {}
-  list() { return this.http.get<Plan[]>(`${this.base}/payments/plans`); }
+  list() { return this.http.get<Plan[]>(`${this.base}/plans`); }
 }
 
 // src/app/services/checkout.service.ts

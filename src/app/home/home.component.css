@@ -31,6 +31,9 @@
 .price-card.popular { border: 2px solid #2B7AE0; box-shadow: 0 28px 50px rgba(30,61,140,0.18); }
 .price-card .badge-popular { position: absolute; top: -12px; right: 20px; padding: 0.35rem 0.75rem; border-radius: 999px; background: #2B7AE0; color: #fff; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; }
 .price-card ul { margin: 1.25rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.65rem; }
+.plan-benefits { margin: 1rem 0; padding: 0; list-style: none; display: grid; gap: 0.5rem; }
+.plan-benefits li { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: #3a4864; }
+.plan-benefits li i { color: #1E9E75; }
 .price-card li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.9rem; color: #3a4864; }
 .price-card li i { color: #1E9E75; }
 

@@ -37,7 +37,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   private updateMenuState() {
     const url = this.router.url;
-    const open = url.startsWith('/admin/questions') || url.startsWith('/admin/categories');
+    const open = url.startsWith('/admin/questions') || url.startsWith('/admin/categories') || url.startsWith('/admin/plans');
     this.contentMenuOpen.set(open);
   }
 }

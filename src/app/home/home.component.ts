@@ -3,12 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LandingNavbarComponent, LandingNavItem } from '../shared/landing-navbar/landing-navbar.component';
 import { AuthButtonComponent } from '../auth-button/auth-button.component';
-import { AuthService } from '../services/auth.service';
+import { PlansService, Plan } from '../services/plans.service';
 
 type Feature = { icon: string; title: string; description: string };
-type Plan = { name: string; price: string; description: string; perks: string[]; popular?: boolean };
 type Testimonial = { quote: string; author: string; role: string };
-
 type Faq = { question: string; answer: string };
 
 @Component({
@@ -19,10 +17,15 @@ type Faq = { question: string; answer: string };
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  private readonly auth = inject(AuthService);
+  private readonly plansService = inject(PlansService);
+
   readonly heroCtaLink = ['/simulados'];
   readonly isMobile = signal(false);
   readonly loginModalOpen = signal(false);
+  readonly plansLoading = signal(true);
+  readonly plansError = signal<string | null>(null);
+  readonly plans = signal<Plan[]>([]);
+
   readonly homeNavItems: LandingNavItem[] = [
     { label: 'Simulados', routerLink: ['/simulados'] },
     { label: 'Benefícios', href: '#features' },
@@ -32,6 +35,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
   readonly authRequiredRoutes = ['/simulado', '/area-do-candidato'];
   readonly currentYear = new Date().getFullYear();
+
   readonly features: Feature[] = [
     {
       icon: 'fas fa-stopwatch',
@@ -47,28 +51,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       icon: 'fas fa-graduation-cap',
       title: 'Conteúdo direcionado',
       description: 'Receba recomendações automáticas de estudo a partir do seu desempenho e foque no que importa.',
-    },
-  ];
-
-  readonly plans: Plan[] = [
-    {
-      name: 'Start',
-      price: 'Grátis',
-      description: 'Ideal para conhecer a plataforma e resolver simulados avulsos.',
-      perks: ['Simulados limitados por mês', 'Histórico básico de desempenho', 'Acesso via desktop ou mobile'],
-    },
-    {
-      name: 'Pro',
-      price: 'R$ 29/mês',
-      description: 'Para candidatos que querem treinar com intensidade e ter relatórios avançados.',
-      perks: ['Simulados ilimitados', 'Relatórios detalhados por competência', 'Exportação de resultados e ranking'],
-      popular: true,
-    },
-    {
-      name: 'Equipe',
-      price: 'Sob consulta',
-      description: 'Treine squads, turmas ou equipes inteiras com acompanhamento centralizado.',
-      perks: ['Painel administrativo completo', 'Gestão de licenças e lotes', 'Suporte prioritário e treinamentos'],
     },
   ];
 
@@ -109,17 +91,29 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly mediaListener = (event: MediaQueryListEvent) => this.isMobile.set(event.matches);
 
   ngOnInit(): void {
-    if (typeof window === 'undefined') return;
-    this.mediaQuery = window.matchMedia('(max-width: 767.98px)');
-    this.isMobile.set(this.mediaQuery.matches);
-    this.mediaQuery.addEventListener('change', this.mediaListener);
+    if (typeof window !== 'undefined') {
+      this.mediaQuery = window.matchMedia('(max-width: 767.98px)');
+      this.isMobile.set(this.mediaQuery.matches);
+      this.mediaQuery.addEventListener('change', this.mediaListener);
 
-    const state = window.history.state as { loginRequired?: boolean };
-    if (state?.loginRequired) {
-      this.openLoginModal();
-      const { loginRequired, ...rest } = state;
-      window.history.replaceState(rest, document.title);
+      const state = window.history.state as { loginRequired?: boolean };
+      if (state?.loginRequired) {
+        this.openLoginModal();
+        const { loginRequired, ...rest } = state;
+        window.history.replaceState(rest, document.title);
+      }
     }
+
+    this.plansService.list().subscribe({
+      next: (plans) => {
+        this.plans.set(plans);
+        this.plansLoading.set(false);
+      },
+      error: () => {
+        this.plansError.set('Falha ao carregar planos.');
+        this.plansLoading.set(false);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -129,4 +123,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   openLoginModal() { this.loginModalOpen.set(true); }
   closeLoginModal() { this.loginModalOpen.set(false); }
 
+  formatPrice(plan: Plan): string {
+    return (plan.priceCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: plan.currency || 'BRL' });
+  }
+
+  formatDuration(plan: Plan): string {
+    if (!plan.durationDays) return '';
+    if (plan.durationDays % 30 === 0) {
+      const months = plan.durationDays / 30;
+      return months === 1 ? '1 mês' : `${months} meses`;
+    }
+    return `${plan.durationDays} dias`;
+  }
 }

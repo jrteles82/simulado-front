@@ -1,0 +1,50 @@
+<div class="card shadow-sm">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h2 class="h5 mb-0">{{ isEditing ? 'Editar plano' : 'Novo plano' }}</h2>
+    <button class="btn btn-outline-secondary btn-sm" (click)="cancel()">Voltar</button>
+  </div>
+  <div class="card-body">
+    <div *ngIf="loading()" class="alert alert-info" role="status">Carregando…</div>
+    <div *ngIf="error()" class="alert alert-danger" role="alert">{{ error() }}</div>
+
+    <form *ngIf="!loading()" (ngSubmit)="save()" #form="ngForm">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Nome</label>
+          <input class="form-control" name="name" [(ngModel)]="plan.name" required />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Slug</label>
+          <input class="form-control" name="slug" [(ngModel)]="plan.slug" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Preço (centavos)</label>
+          <input type="number" class="form-control" name="priceCents" [(ngModel)]="plan.priceCents" min="0" step="1" required />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Moeda</label>
+          <input class="form-control" name="currency" [(ngModel)]="plan.currency" required />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Duração (dias)</label>
+          <input type="number" class="form-control" name="durationDays" [(ngModel)]="plan.durationDays" min="1" step="1" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descrição</label>
+        <textarea class="form-control" name="description" rows="4" [(ngModel)]="plan.description"></textarea>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
+          {{ saving() ? 'Salvando…' : 'Salvar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

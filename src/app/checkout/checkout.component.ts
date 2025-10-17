@@ -189,6 +189,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     await this.initMercadoPago();
     await new Promise((resolve) => setTimeout(resolve, 0));
+    if (!this.bricks?.create) {
+      throw new Error('Mercado Pago Bricks não está disponível.');
+    }
 
     const containerId = method === 'card' ? 'payment_brick_container' : 'pix_wallet_container';
 

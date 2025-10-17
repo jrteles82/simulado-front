@@ -18,7 +18,7 @@ export class CheckoutService {
     selectedPaymentMethod: any;
     formData: any;
   }) {
-    return this.http.post<{ paymentId: string; status: string; redirectUrl?: string }>(`${this.base}/checkout/payment`, payload);
+    return this.http.post<{ paymentId: string; status: string; redirectUrl?: string }>(`${this.base}/payments/checkout`, payload);
   }
 
   getStatus(paymentId: string) {

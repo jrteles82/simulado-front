@@ -61,39 +61,21 @@
             <h2 class="h5 mb-0">Pagamento</h2>
           </div>
           <div class="card-body">
-            <div class="btn-group btn-group-toggle mb-3 d-flex" data-toggle="buttons">
-              <label class="btn btn-outline-primary" [class.active]="paymentMethod() === 'card'">
-                <input type="radio" autocomplete="off" (change)="selectPayment('card')" [checked]="paymentMethod() === 'card'"> Cartão de crédito
-              </label>
-              <label class="btn btn-outline-primary" [class.active]="paymentMethod() === 'pix'">
-                <input type="radio" autocomplete="off" (change)="selectPayment('pix')" [checked]="paymentMethod() === 'pix'"> Pix
-              </label>
-            </div>
-
             <p class="text-muted small">
-              Seus dados são processados diretamente pelo Mercado Pago em um ambiente seguro.
+              Selecione a forma de pagamento disponível abaixo. Os dados são processados diretamente pelo Mercado Pago em ambiente seguro.
             </p>
 
-            <button class="btn btn-primary btn-block mb-3" (click)="finalize()" [disabled]="creatingPreference() || !selectedPlanSignal()">
-              {{ creatingPreference() ? 'Preparando pagamento…' : 'Continuar com pagamento' }}
-            </button>
+            <div *ngIf="creatingPreference()" class="alert alert-info" role="status">
+              Preparando opções de pagamento…
+            </div>
 
-            <div *ngIf="checkoutError()" class="alert alert-danger" role="alert">{{ checkoutError() }}</div>
-            <div *ngIf="paymentMethod() === 'card'" class="payment-instructions alert alert-secondary">
-              Preencha os dados do cartão no formulário abaixo para concluir a compra com segurança.
-            </div>
-            <div *ngIf="paymentMethod() === 'pix'" class="payment-instructions alert alert-secondary">
-              Gere o QR Code e complete o pagamento via Pix utilizando o banco de sua preferência.
-            </div>
+            <div *ngIf="checkoutError()" class="alert" [ngClass]="'alert-' + checkoutErrorVariant()" role="alert">{{ checkoutError() }}</div>
             <div *ngIf="paymentId()" class="alert alert-info" role="alert">
               Número do pagamento: <code>{{ paymentId() }}</code>
             </div>
 
-            <div class="payment-brick" *ngIf="paymentMethod() === 'card'">
+            <div class="payment-brick" [class.payment-brick--loading]="creatingPreference()">
               <div id="payment_brick_container"></div>
-            </div>
-            <div class="payment-brick" *ngIf="paymentMethod() === 'pix'">
-              <div id="pix_wallet_container"></div>
             </div>
           </div>
         </div>

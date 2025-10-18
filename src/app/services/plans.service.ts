@@ -19,5 +19,5 @@ export interface Plan {
 export class PlansService {
   private base = environment.apiBase;
   constructor(private http: HttpClient) {}
-  list() { return this.http.get<Plan[]>(`${this.base}/plans`); }
+  list() { return this.http.get<Plan[]>(`${this.base}/payments/plans`); }
 }

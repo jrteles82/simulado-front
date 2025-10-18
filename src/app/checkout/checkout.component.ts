@@ -3,12 +3,10 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { loadMercadoPago } from '@mercadopago/sdk-js';
 import { PlansService, Plan } from '../services/plans.service';
-import { CheckoutService } from '../services/checkout.service';
+import { CheckoutService, CheckoutSubmitResponse } from '../services/checkout.service';
 import { environment } from '../../environments/environment';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-
-type PaymentMethod = 'card' | 'pix';
 
 @Component({
   selector: 'app-checkout',
@@ -28,9 +26,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   readonly loadingPlans = signal(true);
   readonly plansError = signal<string | null>(null);
   readonly selectedSlug = signal<string | null>(null);
-  readonly paymentMethod = signal<PaymentMethod>('card');
   readonly creatingPreference = signal(false);
   readonly checkoutError = signal<string | null>(null);
+  readonly checkoutErrorVariant = signal<'danger' | 'warning' | 'info' | 'success'>('danger');
   readonly paymentId = signal<string | null>(null);
   readonly preferenceId = signal<string | null>(null);
   readonly selectedPlanSignal = computed(() => {
@@ -47,7 +45,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
       const slug = params.get('plan');
-      if (slug) this.selectedSlug.set(slug);
+      if (slug) {
+        this.selectedSlug.set(slug);
+        const plan = this.plans().find((p) => p.slug === slug);
+        if (plan) {
+          this.selectPlan(plan, { updateRoute: false });
+        }
+      }
     });
 
     this.loadPlans();
@@ -58,59 +62,26 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.cleanupBrick();
   }
 
-  selectPlan(plan: Plan): void {
-    this.cleanupBrick();
-    this.preferenceId.set(null);
-    this.paymentId.set(null);
-    this.selectedSlug.set(plan.slug);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { plan: plan.slug },
-      replaceUrl: true,
-    });
-  }
+  selectPlan(plan: Plan, options: { updateRoute?: boolean } = {}): void {
+    const updateRoute = options.updateRoute ?? true;
+    const currentSlug = this.selectedSlug();
+    const changed = currentSlug !== plan.slug;
 
-  selectPayment(method: PaymentMethod): void {
-    if (this.paymentMethod() === method) return;
-    this.cleanupBrick();
-    this.paymentMethod.set(method);
-    const plan = this.selectedPlanSignal();
-    const pref = this.preferenceId();
-    if (plan && pref) {
-      this.createBrick(plan, method, pref).catch((err) => {
-        console.error(err);
-        this.checkoutError.set('Ocorreu um erro ao preparar o pagamento.');
-      });
-    }
-  }
-
-  async finalize(): Promise<void> {
-    const plan = this.selectedPlanSignal();
-    if (!plan) {
-      this.checkoutError.set('Selecione um plano para continuar.');
-      return;
-    }
-    this.checkoutError.set(null);
-    this.creatingPreference.set(true);
-
-    this.checkoutService.start(plan.slug).subscribe({
-      next: ({ preferenceId, paymentId }) => {
-        this.creatingPreference.set(false);
-        this.preferenceId.set(preferenceId);
-        this.paymentId.set(paymentId || null);
-        if (paymentId) {
-          try { localStorage.setItem('last_payment_id', paymentId); } catch {}
-        }
-        this.createBrick(plan, this.paymentMethod(), preferenceId).catch((err) => {
-          console.error(err);
-          this.checkoutError.set('Não foi possível preparar o pagamento.');
+    if (changed) {
+      this.cleanupBrick();
+      this.preferenceId.set(null);
+      this.paymentId.set(null);
+      this.selectedSlug.set(plan.slug);
+      if (updateRoute) {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { plan: plan.slug },
+          replaceUrl: true,
         });
-      },
-      error: () => {
-        this.checkoutError.set('Não foi possível iniciar o checkout. Tente novamente.');
-        this.creatingPreference.set(false);
-      },
-    });
+      }
+    }
+
+    this.prepareCheckout(plan, { force: changed });
   }
 
   formatPrice(plan: Plan | undefined): string {
@@ -127,12 +98,24 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     return `${plan.durationDays} dias`;
   }
 
+  private setCheckoutError(message: string | null, variant: 'danger' | 'warning' | 'info' | 'success' = 'danger'): void {
+    this.checkoutErrorVariant.set(variant);
+    this.checkoutError.set(message);
+  }
+
   private loadPlans(): void {
     this.plansService.list().subscribe({
       next: (plans) => {
         this.plans.set(plans);
         this.loadingPlans.set(false);
-        if (!this.selectedSlug() && plans.length) this.selectPlan(plans[0]);
+        const currentSlug = this.selectedSlug();
+        const initialPlan = currentSlug
+          ? plans.find((p) => p.slug === currentSlug) || plans[0]
+          : plans[0];
+        if (initialPlan) {
+          const shouldUpdateRoute = !currentSlug || currentSlug !== initialPlan.slug;
+          this.selectPlan(initialPlan, { updateRoute: shouldUpdateRoute });
+        }
       },
       error: () => {
         this.plansError.set('Falha ao carregar planos disponíveis.');
@@ -156,7 +139,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         })
         .catch((err) => {
           console.error('Erro ao carregar Mercado Pago', err);
-          this.checkoutError.set('Não foi possível carregar o módulo de pagamento.');
+          this.setCheckoutError('Não foi possível carregar o módulo de pagamento.');
           this.initBricksPromise = null;
           throw err;
         });
@@ -164,27 +147,57 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     return this.initBricksPromise;
   }
 
-  private async createBrick(plan: Plan, method: PaymentMethod, preferenceId?: string): Promise<void> {
-    if (!preferenceId) {
-      this.creatingPreference.set(true);
-      this.checkoutService.start(plan.slug).subscribe({
-        next: async ({ preferenceId: id, paymentId }) => {
-          this.creatingPreference.set(false);
-          this.preferenceId.set(id);
-          this.paymentId.set(paymentId || null);
-          if (paymentId) {
-            try { localStorage.setItem('last_payment_id', paymentId); } catch {}
-          }
-          await this.createBrick(plan, method, id);
-        },
-        error: () => {
-          this.checkoutError.set('Não foi possível iniciar o checkout. Tente novamente.');
-          this.creatingPreference.set(false);
-        },
+  private prepareCheckout(plan: Plan, options: { force?: boolean } = {}): void {
+    const { force } = options;
+    const existingPreference = this.preferenceId();
+
+    if (existingPreference && !force) {
+      this.renderPaymentBrick(plan, existingPreference).catch((err) => {
+        console.error(err);
+        this.setCheckoutError('Ocorreu um erro ao preparar o pagamento.');
       });
       return;
     }
 
+    if (this.creatingPreference() && !force) {
+      return;
+    }
+
+    this.setCheckoutError(null);
+    this.creatingPreference.set(true);
+
+    const targetSlug = plan.slug;
+
+    this.checkoutService.start(plan.slug).subscribe({
+      next: ({ preferenceId, paymentId }) => {
+        if (this.selectedSlug() !== targetSlug) {
+          return;
+        }
+        this.creatingPreference.set(false);
+        this.preferenceId.set(preferenceId);
+        this.paymentId.set(paymentId || null);
+        if (paymentId) {
+          try { localStorage.setItem('last_payment_id', paymentId); } catch {}
+        }
+        this.renderPaymentBrick(plan, preferenceId).catch((err) => {
+          console.error(err);
+          this.setCheckoutError('Não foi possível preparar o pagamento.');
+        });
+      },
+      error: () => {
+        if (this.selectedSlug() === targetSlug) {
+          this.setCheckoutError('Não foi possível iniciar o checkout. Tente novamente.');
+          this.creatingPreference.set(false);
+        }
+      },
+    });
+  }
+
+  private async renderPaymentBrick(plan: Plan, preferenceId: string): Promise<void> {
+    if (this.selectedSlug() !== plan.slug) {
+      return;
+    }
+    this.setCheckoutError(null);
     this.cleanupBrick();
 
     await this.initMercadoPago();
@@ -193,61 +206,38 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       throw new Error('Mercado Pago Bricks não está disponível.');
     }
 
-    const containerId = method === 'card' ? 'payment_brick_container' : 'pix_wallet_container';
-
-    if (method === 'card') {
-      const amount = (plan.priceCents ?? 0) / 100;
-      const payer = this.buildPayer();
-      const initialization: any = { amount, preferenceId };
-      if (payer) initialization.payer = payer;
-
-      const settings = {
-        initialization,
-        customization: {
-          visual: { style: { theme: 'default' } },
-          paymentMethods: {
-            creditCard: 'all',
-            bankTransfer: "all",
-            maxInstallments: 1,
-          },
-        },
-        callbacks: {
-          onReady: () => {},
-          onSubmit: ({ selectedPaymentMethod, formData }: any) =>
-            this.handlePaymentSubmit(plan, preferenceId, selectedPaymentMethod, formData),
-          onError: (error: any) => {
-            console.error(error);
-            this.checkoutError.set('Ocorreu um erro ao renderizar o pagamento.');
-          },
-        },
-      };
-      this.brickController = await this.bricks.create('payment', containerId, settings);
+    if (this.selectedSlug() !== plan.slug) {
       return;
     }
 
+    const amount = (plan.priceCents ?? 0) / 100;
+    const payer = this.buildPayer();
+    const initialization: any = { amount, preferenceId };
+    if (payer) initialization.payer = payer;
+
     const settings = {
-      initialization: { preferenceId },
+      initialization,
       customization: {
+        visual: { style: { theme: 'default' } },
         paymentMethods: {
-          excludedPaymentTypes: ['credit_card', 'debit_card', 'prepaid_card'],
-          defaultPaymentMethod: { type: 'pix' },
+          creditCard: 'all',
+          debitCard: 'all',
+          bankTransfer: 'all',
+          maxInstallments: 12,
         },
-        visual: { style: { theme: 'dark' } },
       },
       callbacks: {
         onReady: () => {},
-        onSubmit: (event: any) => {
-          const selectedPaymentMethod = event?.selectedPaymentMethod;
-          console.log('Método selecionado', selectedPaymentMethod);
-        },
+        onSubmit: ({ selectedPaymentMethod, formData }: any) =>
+          this.handlePaymentSubmit(plan, preferenceId, selectedPaymentMethod, formData),
         onError: (error: any) => {
           console.error(error);
-          this.checkoutError.set('Ocorreu um erro ao renderizar o pagamento.');
+          this.setCheckoutError('Ocorreu um erro ao renderizar o pagamento.');
         },
       },
     };
 
-    this.brickController = await this.bricks.create('wallet', containerId, settings);
+    this.brickController = await this.bricks.create('payment', 'payment_brick_container', settings);
   }
 
   private cleanupBrick(): void {
@@ -278,24 +268,52 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     selectedPaymentMethod: any,
     formData: any,
   ): Promise<void> {
-    this.checkoutError.set(null);
+    this.setCheckoutError(null);
     this.creatingPreference.set(true);
     try {
-      const response = await firstValueFrom(this.checkoutService.submitPayment({
+      const response: CheckoutSubmitResponse = await firstValueFrom(this.checkoutService.submitPayment({
         planSlug: plan.slug,
         preferenceId,
         paymentId: this.paymentId(),
         selectedPaymentMethod,
         formData,
       }));
-      const paymentId = (response as any)?.paymentId ?? (response as any)?.id ?? null;
+
+      const rawPaymentId = response?.paymentId ?? (response as any)?.id ?? null;
+      const paymentId = rawPaymentId != null ? String(rawPaymentId) : null;
       if (paymentId) {
         this.paymentId.set(paymentId);
         try { localStorage.setItem('last_payment_id', paymentId); } catch {}
       }
+
+      if (response?.redirectUrl) {
+        const redirectUrl = response.redirectUrl;
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
+          return;
+        }
+      }
+
+      const status = response?.status ? String(response.status).toUpperCase() : null;
+      if (status === 'APPROVED') {
+        this.setCheckoutError(null);
+        this.cleanupBrick();
+        if (paymentId) {
+          await this.router.navigate(['/checkout/success'], { queryParams: { paymentId } });
+        } else {
+          await this.router.navigate(['/checkout/success']);
+        }
+        return;
+      }
+
+      if (status === 'PENDING') {
+        this.setCheckoutError('Pagamento pendente de confirmação. Você será notificado assim que for aprovado.', 'warning');
+      } else if (status === 'REJECTED' || status === 'CANCELLED') {
+        this.setCheckoutError('Pagamento não autorizado. Verifique os dados informados ou tente outro método.');
+      }
     } catch (error) {
       console.error('Falha ao processar pagamento com cartão', error);
-      this.checkoutError.set('Não foi possível processar o pagamento. Verifique os dados e tente novamente.');
+      this.setCheckoutError('Não foi possível processar o pagamento. Verifique os dados e tente novamente.');
       throw error;
     } finally {
       this.creatingPreference.set(false);

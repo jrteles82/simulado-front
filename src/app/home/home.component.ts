@@ -1,10 +1,12 @@
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { LandingNavbarComponent, LandingNavItem } from '../shared/landing-navbar/landing-navbar.component';
 import { AuthButtonComponent } from '../auth-button/auth-button.component';
 import { PlansService, Plan } from '../services/plans.service';
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../environments/environment';
 
 type Feature = { icon: string; title: string; description: string };
 type Testimonial = { quote: string; author: string; role: string };
@@ -21,13 +23,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly plansService = inject(PlansService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
   readonly heroCtaLink = ['/simulados'];
   readonly isMobile = signal(false);
   readonly loginModalOpen = signal(false);
+  readonly checkoutModalOpen = signal(false);
   readonly plansLoading = signal(true);
   readonly plansError = signal<string | null>(null);
   readonly plans = signal<Plan[]>([]);
+  readonly paymentStatusResponse = signal<unknown | null>(null);
+  readonly paymentStatusError = signal<string | null>(null);
 
   readonly homeNavItems: LandingNavItem[] = [
     { label: 'Simulados', routerLink: ['/simulados'] },
@@ -93,6 +99,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   private mediaQuery?: MediaQueryList;
   private readonly mediaListener = (event: MediaQueryListEvent) => this.isMobile.set(event.matches);
 
+  paymentId?: string | undefined;
+
+  constructor(private route: ActivatedRoute) {
+    this.route.queryParamMap.subscribe((map) => {
+      const id = map.get('paymentId');
+      if(id){
+      this.paymentId = id ? id : undefined;
+      this.fetchPaymentStatus(this.paymentId!);
+      }
+    });
+    
+  }
+
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
       this.mediaQuery = window.matchMedia('(max-width: 767.98px)');
@@ -147,5 +166,25 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
     this.router.navigateByUrl(target);
+  }
+
+  private fetchPaymentStatus(paymentId: string): void {
+
+    this.paymentStatusError.set(null);
+    this.http
+      .get(`${environment.apiBase}/payments/status`, { params: { paymentId: paymentId } })
+      .subscribe({
+        next: (response) => {
+          this.paymentStatusResponse.set(response);
+          console.log(response);
+          alert('Status do pagamento carregado com sucesso.');
+          
+        },
+        error: (e) => {
+          this.paymentStatusError.set('Não foi possível carregar o status do pagamento.');
+          console.log(e);
+          alert('Erro ao carregar status do pagamento.');
+        },
+      });
   }
 }

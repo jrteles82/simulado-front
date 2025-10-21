@@ -10,6 +10,7 @@ import { requireAuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'home', component: HomeComponent },
   { path: 'simulados', component: SimuladosCatalogComponent },
   { path: 'simulado', component: SimuladoComponent, canActivate: [requireAuthGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [requireAuthGuard] },

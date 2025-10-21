@@ -216,6 +216,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     if (payer) initialization.payer = payer;
 
     const settings = {
+      mercadoPago: this.mp,
       initialization,
       customization: {
         visual: { style: { theme: 'default' } },
@@ -252,13 +253,14 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     if (!user) return undefined;
     const name = (user.name || '').trim();
     if (!name) {
-      return { email: user.email, firstName: '', lastName: '' };
+      return { email: user.email, firstName: '', lastName: '', entityType: 'individual' };
     }
     const [firstName, ...rest] = name.split(/\s+/);
     return {
       email: user.email,
       firstName: firstName || '',
       lastName: rest.join(' ') || '',
+      entityType: 'individual',
     };
   }
 
@@ -299,9 +301,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         this.setCheckoutError(null);
         this.cleanupBrick();
         if (paymentId) {
-          await this.router.navigate(['/checkout/success'], { queryParams: { paymentId } });
+          await this.router.navigate(['/home'], { queryParams: { paymentId } });
         } else {
-          await this.router.navigate(['/checkout/success']);
+          await this.router.navigate(['/home']);
         }
         return;
       }

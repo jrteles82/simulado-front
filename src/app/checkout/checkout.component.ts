@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { loadMercadoPago } from '@mercadopago/sdk-js';
@@ -21,6 +21,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private readonly plansService = inject(PlansService);
   private readonly checkoutService = inject(CheckoutService);
   private readonly auth = inject(AuthService);
+  private readonly zone = inject(NgZone);
 
   readonly plans = signal<Plan[]>([]);
   readonly loadingPlans = signal(true);
@@ -228,16 +229,26 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         },
       },
       callbacks: {
-        onReady: () => {},
-        onSubmit: ({ selectedPaymentMethod, formData }: any) =>
-          this.handlePaymentSubmit(plan, preferenceId, selectedPaymentMethod, formData),
+        onReady: () => {
+          // se for alterar qualquer estado aqui, use Zone
+          this.zone.run(() => {});
+        },
+        onSubmit: ({ selectedPaymentMethod, formData }: any) => {
+          // SEMPRE garantir execução dentro da NgZone
+          return this.zone.run(() =>
+            this.handlePaymentSubmit(plan, preferenceId, selectedPaymentMethod, formData)
+          );
+        },
         onError: (error: any) => {
-          console.error(error);
-          this.setCheckoutError('Ocorreu um erro ao renderizar o pagamento.');
+          this.zone.run(() => {
+            console.error(error);
+            this.setCheckoutError('Ocorreu um erro ao renderizar o pagamento.');
+          });
         },
       },
     };
 
+    // IMPORTANTE: criação do brick pode disparar callbacks fora da Zone
     this.brickController = await this.bricks.create('payment', 'payment_brick_container', settings);
   }
 
@@ -270,6 +281,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     selectedPaymentMethod: any,
     formData: any,
   ): Promise<void> {
+    // Este método já é chamado dentro da Zone (ver callbacks.onSubmit)
     this.setCheckoutError(null);
     this.creatingPreference.set(true);
     try {
@@ -289,22 +301,24 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       }
 
       if (response?.redirectUrl) {
-        const redirectUrl = response.redirectUrl;
-        if (redirectUrl) {
-          window.location.href = redirectUrl;
-          return;
+        // Se for rota do próprio app, use Router; externo -> navegação hard
+        const url = new URL(response.redirectUrl, window.location.origin);
+        if (url.origin === window.location.origin) {
+          await this.router.navigateByUrl(url.pathname + url.search);
+        } else {
+          window.location.assign(url.toString());
         }
+        return;
       }
 
       const status = response?.status ? String(response.status).toUpperCase() : null;
       if (status === 'APPROVED') {
         this.setCheckoutError(null);
         this.cleanupBrick();
-        if (paymentId) {
-          await this.router.navigate(['/home'], { queryParams: { paymentId } });
-        } else {
-          await this.router.navigate(['/home']);
-        }
+        await this.router.navigate(['/home'], {
+          queryParams: paymentId ? { paymentId } : undefined,
+          replaceUrl: true,
+        });
         return;
       }
 

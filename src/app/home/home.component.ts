@@ -7,6 +7,7 @@ import { AuthButtonComponent } from '../auth-button/auth-button.component';
 import { PlansService, Plan } from '../services/plans.service';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../environments/environment';
+import { filter, map, take } from 'rxjs/operators';
 
 type Feature = { icon: string; title: string; description: string };
 type Testimonial = { quote: string; author: string; role: string };
@@ -24,6 +25,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
+  private readonly route = inject(ActivatedRoute);
 
   readonly heroCtaLink = ['/simulados'];
   readonly isMobile = signal(false);
@@ -101,18 +103,21 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   paymentId?: string | undefined;
 
-  constructor(private route: ActivatedRoute) {
-    this.route.queryParamMap.subscribe((map) => {
-      const id = map.get('paymentId');
-      if(id){
-      this.paymentId = id ? id : undefined;
-      this.fetchPaymentStatus(this.paymentId!);
-      }
-    });
-    
-  }
+  constructor() {}
 
   ngOnInit(): void {
+    // Processa paymentId somente uma vez
+    this.route.queryParamMap
+      .pipe(
+        map((map) => map.get('paymentId')),
+        filter((id): id is string => !!id),
+        take(1),
+      )
+      .subscribe((id) => {
+        this.paymentId = id;
+        this.fetchPaymentStatus(id);
+      });
+
     if (typeof window !== 'undefined') {
       this.mediaQuery = window.matchMedia('(max-width: 767.98px)');
       this.isMobile.set(this.mediaQuery.matches);
@@ -169,21 +174,32 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private fetchPaymentStatus(paymentId: string): void {
-
     this.paymentStatusError.set(null);
+
     this.http
-      .get(`${environment.apiBase}/payments/status`, { params: { paymentId: paymentId } })
+      .get(`${environment.apiBase}/payments/status`, { params: { paymentId } })
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           this.paymentStatusResponse.set(response);
-          console.log(response);
-          alert('Status do pagamento carregado com sucesso.');
-          
+
+          const status = String(response?.payment?.status || '').toUpperCase();
+
+          if (status === 'APPROVED') {
+            // Remove o query param sem sair da rota (evita navegar para / de novo)
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { paymentId: null },
+              queryParamsHandling: 'merge',
+              replaceUrl: true,
+            });
+            // opcional: abrir um toast/modal de sucesso aqui
+          } else {
+            // opcional: abrir modal/aviso de pendente/recusado
+          }
         },
         error: (e) => {
           this.paymentStatusError.set('Não foi possível carregar o status do pagamento.');
           console.log(e);
-          alert('Erro ao carregar status do pagamento.');
         },
       });
   }

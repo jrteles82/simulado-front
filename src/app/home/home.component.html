@@ -198,6 +198,48 @@
   </div>
 </footer>
 
+<ng-container *ngIf="paymentApprovedModalOpen()">
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block payment-success-modal" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <button type="button" class="close payment-success-modal__close" aria-label="Fechar aviso" (click)="closePaymentApprovedModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <div class="payment-success-modal__header">
+          <div class="payment-success-modal__icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h5 class="mb-2">Pagamento aprovado! 🎉</h5>
+          <p class="mb-0 text-white-75">Parabéns! Sua assinatura foi confirmada. Agora é só aproveitar os simulados para acelerar seus resultados.</p>
+        </div>
+        <div class="payment-success-modal__body">
+          <ul class="payment-success-modal__perks">
+            <li>
+              <i class="fas fa-bolt text-primary"></i>
+              Acesso imediato aos simulados premium e relatórios completos.
+            </li>
+            <li>
+              <i class="fas fa-star text-primary"></i>
+              Novos desafios liberados semanalmente para manter o ritmo.
+            </li>
+            <li>
+              <i class="fas fa-chart-line text-primary"></i>
+              Acompanhe sua evolução com métricas atualizadas a cada sessão.
+            </li>
+          </ul>
+        </div>
+        <div class="payment-success-modal__footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closePaymentApprovedModal()">Fechar</button>
+          <a class="btn btn-primary" [routerLink]="['/simulados']" (click)="closePaymentApprovedModal()">
+            Ir para os simulados
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
 <ng-container *ngIf="loginModalOpen()">
   <div class="modal-backdrop fade show"></div>
   <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
@@ -220,5 +262,4 @@
     </div>
   </div>
 </ng-container>
-
 

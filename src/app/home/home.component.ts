@@ -36,6 +36,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   readonly plans = signal<Plan[]>([]);
   readonly paymentStatusResponse = signal<unknown | null>(null);
   readonly paymentStatusError = signal<string | null>(null);
+  readonly paymentApprovedModalOpen = signal(false);
 
   readonly homeNavItems: LandingNavItem[] = [
     { label: 'Simulados', routerLink: ['/simulados'] },
@@ -123,6 +124,16 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.isMobile.set(this.mediaQuery.matches);
       this.mediaQuery.addEventListener('change', this.mediaListener);
 
+      const showPaymentSuccessDemo = this.route.snapshot.queryParamMap.get('paymentSuccessDemo');
+      if (showPaymentSuccessDemo && showPaymentSuccessDemo !== '0' && showPaymentSuccessDemo !== 'false') {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { paymentSuccessDemo: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true,
+        }).finally(() => this.openPaymentApprovedModal());
+      }
+
       const state = window.history.state as { loginRequired?: boolean };
       if (state?.loginRequired) {
         this.openLoginModal();
@@ -149,6 +160,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   openLoginModal() { this.loginModalOpen.set(true); }
   closeLoginModal() { this.loginModalOpen.set(false); }
+  openPaymentApprovedModal() { this.paymentApprovedModalOpen.set(true); }
+  closePaymentApprovedModal() { this.paymentApprovedModalOpen.set(false); }
 
   formatPrice(plan: Plan): string {
     return (plan.priceCents / 100).toLocaleString('pt-BR', { style: 'currency', currency: plan.currency || 'BRL' });
@@ -175,6 +188,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private fetchPaymentStatus(paymentId: string): void {
     this.paymentStatusError.set(null);
+    this.paymentApprovedModalOpen.set(false);
 
     this.http
       .get(`${environment.apiBase}/payments/status`, { params: { paymentId } })
@@ -191,10 +205,10 @@ export class HomeComponent implements OnInit, OnDestroy {
               queryParams: { paymentId: null },
               queryParamsHandling: 'merge',
               replaceUrl: true,
-            });
-            // opcional: abrir um toast/modal de sucesso aqui
+            }).finally(() => this.openPaymentApprovedModal());
           } else {
             // opcional: abrir modal/aviso de pendente/recusado
+            this.paymentApprovedModalOpen.set(false);
           }
         },
         error: (e) => {
